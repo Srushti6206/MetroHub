@@ -1,5 +1,6 @@
 """POST /api/chat — MetroMate AI. Works without any API key (rule-based, grounded in MongoDB)."""
 import logging
+import re
 import time
 from collections import defaultdict, deque
 
@@ -28,10 +29,38 @@ def _rate_limit():
     q.append(now)
 
 
-def _card(p, shop, reason):
+def _card(db, p, shop, reason, q):
+    locations = []
+    budget = q["budget_paise"] if q["budget_paise"] is not None else 15000
+    minutes = q["minutes"] if q["minutes"] is not None else 20
+    f = {"name": {"$regex": "^" + re.escape(p["name"]) + "$", "$options": "i"},
+         "category": p["category"], "is_available": True, "price_paise": {"$lte": budget},
+         "preparation_minutes": {"$lte": minutes}}
+    if q["veg"]:
+        f["is_vegetarian"] = True
+    for match in db.products.find(f).sort("price_paise", 1):
+        if q["veg"] and not rec.vegetarian_product(match):
+            continue
+        match_shop = db.shops.find_one({"_id": match["shop_id"], "is_active": True})
+        if not match_shop:
+            continue
+        station_ids = match_shop.get("station_ids", ([match_shop["station_id"]] if match_shop.get("station_id") else []))
+        for station in db.stations.find({"_id": {"$in": station_ids}, "is_active": True}).sort("display_name", 1):
+            if "operational" not in station.get("status_by_line", {}).values():
+                continue
+            locations.append({"station_id": str(station["_id"]), "station_name": station["display_name"],
+                              "lines": station.get("lines", []), "status_by_line": station.get("status_by_line", {}),
+                              "location_type": match_shop.get("location_type", "demo_unverified"),
+                              "distance_metres": match_shop.get("distance_metres"),
+                              "verification_status": match_shop.get("verification_status", "unverified"),
+                              "price_paise": match["price_paise"], "shop_name": match_shop["name"],
+                              "shop_id": str(match_shop["_id"]), "detail_path": f"/shops/{match_shop['_id']}"})
     return {"product_id": str(p["_id"]), "product_name": p["name"], "price_paise": p["price_paise"],
             "shop_id": str(p["shop_id"]), "shop_name": shop["name"] if shop else "", "is_available": p["is_available"],
-            "is_vegetarian": p["is_vegetarian"], "preparation_minutes": p["preparation_minutes"], "reason": reason}
+            "is_vegetarian": p["is_vegetarian"], "preparation_minutes": p["preparation_minutes"], "reason": reason,
+            "station_locations": locations, "shop_type": shop.get("shop_type", "demo"),
+            "verification_status": shop.get("verification_status", "unverified"),
+            "data_source": shop.get("data_source", ""), "detail_path": f"/shops/{shop['_id']}"}
 
 
 def _history(raw):
@@ -94,7 +123,7 @@ def chat():
         shop = result["shop"]
         why = {str(p["_id"]): result.get("reasons_by_id", {}).get(str(p["_id"]), "Matches your budget, diet and time, and is available now in the demo catalog.")
                for p in result["items"]}
-        cards = [_card(p, shop, why[str(p["_id"])]) for p in result["items"]]
+        cards = [_card(db, p, shop, why[str(p["_id"])], q) for p in result["items"]]
     return jsonify({
         "reply": result["message"], "recommendations": cards, "total_paise": result["total_paise"],
         "reasons": result.get("reasons", []),

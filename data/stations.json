@@ -1,0 +1,82 @@
+{
+  "sources": {
+    "purple": "https://www.punemetrorail.org/project-profile?lang=en-US",
+    "aqua": "https://www.punemetrorail.org/project-profile?lang=en-US",
+    "line3": "https://www.pmrda.gov.in/wp-content/uploads/2025/04/PML-3-GOI-Gazatte-Notifications-Sep-2018.pdf",
+    "extensions": "https://punemetrorail.org/press-release?lang=en-US"
+  },
+  "lines": [
+    {"code":"purple","name":"Purple Line","number":1,"status_source_url":"https://punemetrorail.org/press-release?lang=en-US","stations":[
+      {"id":"bhakti-shakti","name":"Bhakti Shakti","order":0,"status":"under_construction"},
+      {"id":"nigdi","name":"Nigdi","order":1,"status":"under_construction"},
+      {"id":"akurdi","name":"Akurdi","order":2,"status":"under_construction"},
+      {"id":"chinchwad","name":"Chinchwad","order":3,"status":"under_construction"},
+      {"id":"pcmc","name":"PCMC","order":4,"status":"operational"},
+      {"id":"sant-tukaram-nagar","name":"Sant Tukaram Nagar","order":5,"status":"operational"},
+      {"id":"bhosari","name":"Bhosari (Nashik Phata)","order":6,"status":"operational"},
+      {"id":"kasarwadi","name":"Kasarwadi","order":7,"status":"operational"},
+      {"id":"phugewadi","name":"Phugewadi","order":8,"status":"operational"},
+      {"id":"dapodi","name":"Dapodi","order":9,"status":"operational"},
+      {"id":"bopodi","name":"Bopodi","order":10,"status":"operational"},
+      {"id":"khadki","name":"Khadki","order":11,"status":"operational"},
+      {"id":"range-hill","name":"Range Hill","order":12,"status":"operational"},
+      {"id":"shivajinagar","name":"Shivajinagar","aliases":["Shivaji Nagar"],"order":13,"status":"operational"},
+      {"id":"district-court","name":"Civil Court","aliases":["District Court"],"order":14,"status":"operational"},
+      {"id":"kasba-peth","name":"Kasba Peth (Budhwar Peth)","order":15,"status":"operational"},
+      {"id":"mandai","name":"Mandai","order":16,"status":"operational"},
+      {"id":"swargate","name":"Swargate","order":17,"status":"operational"},
+      {"id":"market-yard","name":"Market Yard","order":18,"status":"under_construction"},
+      {"id":"padmavati","name":"Padmavati","order":19,"status":"under_construction"},
+      {"id":"katraj","name":"Katraj","order":20,"status":"under_construction"}
+    ]},
+    {"code":"aqua","name":"Aqua Line","number":2,"stations":[
+      {"id":"vanaz","name":"Vanaz","order":1,"status":"operational"},
+      {"id":"anand-nagar","name":"Anand Nagar","order":2,"status":"operational"},
+      {"id":"ideal-colony","name":"Ideal Colony","order":3,"status":"operational"},
+      {"id":"nal-stop","name":"Nal Stop","order":4,"status":"operational"},
+      {"id":"garware-college","name":"Garware College","order":5,"status":"operational"},
+      {"id":"deccan-gymkhana","name":"Deccan Gymkhana","order":6,"status":"operational"},
+      {"id":"chhatrapati-sambhaji-udyan","name":"Chhatrapati Sambhaji Udyan","order":7,"status":"operational"},
+      {"id":"pmc","name":"PMC","order":8,"status":"operational"},
+      {"id":"district-court","name":"Civil Court","aliases":["District Court"],"order":9,"status":"operational"},
+      {"id":"mangalwar-peth","name":"Mangalwar Peth (RTO)","order":10,"status":"operational"},
+      {"id":"pune-railway-station","name":"Pune Railway Station","order":11,"status":"operational"},
+      {"id":"ruby-hall-clinic","name":"Ruby Hall Clinic","order":12,"status":"operational"},
+      {"id":"bund-garden","name":"Bund Garden","order":13,"status":"operational"},
+      {"id":"yerawada","name":"Yerawada","order":14,"status":"operational"},
+      {"id":"kalyani-nagar","name":"Kalyani Nagar","order":15,"status":"operational"},
+      {"id":"ramwadi","name":"Ramwadi","order":16,"status":"operational"}
+    ]},
+    {"code":"line3","name":"Hinjawadi–Shivajinagar Line 3","number":3,"status_source_url":"https://www.pmrda.gov.in/en/pune-metro-line-3/","stations":[
+      {"id":"maan","name":"Maan","order":1,"status":"requires_verification"},
+      {"id":"pmr-2","name":"PMR-2","order":2,"status":"requires_verification"},
+      {"id":"pmr-3","name":"PMR-3","order":3,"status":"requires_verification"},
+      {"id":"pmr-4","name":"PMR-4","order":4,"status":"requires_verification"},
+      {"id":"pmr-5","name":"PMR-5","order":5,"status":"requires_verification"},
+      {"id":"pmr-6","name":"PMR-6","order":6,"status":"requires_verification"},
+      {"id":"hinjawadi","name":"Hinjawadi","order":7,"status":"requires_verification"},
+      {"id":"pmr-8","name":"PMR-8","order":8,"status":"requires_verification"},
+      {"id":"wakad-chowk","name":"Wakad Chowk","order":9,"status":"requires_verification"},
+      {"id":"balewadi-stadium","name":"Balewadi Stadium","order":10,"status":"requires_verification"},
+      {"id":"pmr-11","name":"PMR-11","order":11,"status":"requires_verification"},
+      {"id":"ram-nagar","name":"Ram Nagar","order":12,"status":"requires_verification"},
+      {"id":"laxmi-nagar","name":"Laxmi Nagar","order":13,"status":"requires_verification"},
+      {"id":"balewadi-phata","name":"Balewadi Phata","order":14,"status":"requires_verification"},
+      {"id":"baner-gaon","name":"Baner Gaon","order":15,"status":"requires_verification"},
+      {"id":"baner","name":"Baner","order":16,"status":"requires_verification"},
+      {"id":"krushi-anusandhan","name":"Krushi Anusandhan","order":17,"status":"requires_verification"},
+      {"id":"yashda","name":"Yashda","order":18,"status":"requires_verification"},
+      {"id":"sppu","name":"Savitribai Phule Pune University","order":19,"status":"requires_verification"},
+      {"id":"rbi","name":"RBI","order":20,"status":"requires_verification"},
+      {"id":"agriculture-college","name":"Agriculture College","order":21,"status":"requires_verification"},
+      {"id":"shivajinagar","name":"Shivajinagar","aliases":["Shivaji Nagar"],"order":22,"status":"requires_verification"},
+      {"id":"district-court","name":"Civil Court","aliases":["District Court"],"order":23,"status":"requires_verification"}
+    ]}
+  ],
+  "status_notes": {
+    "operational":"Maha Metro lists the Phase 1 corridors as operational; check the operator for service changes.",
+    "under_construction":"Maha Metro reports PCMC–Nigdi construction progress and Swargate–Katraj tunnel works; check current project updates.",
+    "planned":"The official operator/authority lists this station as a planned extension; passenger service is not listed.",
+    "requires_verification":"Passenger-service status is not confirmed by the cited official sources; verify before travel."
+  }
+}

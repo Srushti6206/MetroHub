@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { Bot, Send, X, ShoppingBag, Clock, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useStore } from '../store';
 import { parseQuery } from '../lib/metromate';
 import { inr, fmtTime } from '../lib/format';
 import { VegDot } from './ui';
 import { api } from '../api/client';
 
-interface ChatItem { id: string; name: string; price: number; prepMin: number; veg: boolean }
+interface ChatItem {
+  id: string; name: string; price: number; prepMin: number; veg: boolean; shopId: string; shopName: string;
+  locations: { stationName: string; lines: { name: string; status: string }[]; locationType: string; distanceMetres?: number | null; verificationStatus: string; price: number; shopName: string; detailPath: string }[];
+  detailPath: string; verificationStatus: string;
+}
 interface ChatRecommendation { ok: boolean; items: ChatItem[]; total: number; reasons: string[]; pickupFrom?: number; pickupTo?: number }
 interface Msg { from: 'me' | 'ai'; text: string; rec?: ChatRecommendation }
 
@@ -35,6 +40,14 @@ export function MetroMate() {
       const items = response.recommendations.map((item) => ({
         id: item.product_id, name: item.product_name, price: item.price_paise / 100,
         prepMin: item.preparation_minutes, veg: item.is_vegetarian,
+        shopId: item.shop_id, shopName: item.shop_name, detailPath: item.detail_path,
+        verificationStatus: item.verification_status,
+        locations: item.station_locations.map((location) => ({
+          stationName: location.station_name, lines: location.lines.map((line) => ({ name: line.name, status: location.status_by_line[line.code] ?? 'requires_verification' })),
+          locationType: location.location_type, distanceMetres: location.distance_metres,
+          verificationStatus: location.verification_status,
+          price: location.price_paise / 100, shopName: location.shop_name, detailPath: location.detail_path,
+        })),
       }));
       const ready = response.earliest_ready_at ? new Date(response.earliest_ready_at) : null;
       const pickupFrom = ready ? ready.getHours() * 60 + ready.getMinutes() : undefined;
@@ -91,10 +104,17 @@ export function MetroMate() {
                     {m.rec.items.map((item) => (
                       <div key={item.id} className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
                         <VegDot veg={item.veg} />
-                        <div className="min-w-0 flex-1"><div className="truncate font-semibold">{item.name}</div><div className="text-[11px] text-white/55">~{item.prepMin} {t('min')}</div></div>
+                        <div className="min-w-0 flex-1"><div className="truncate font-semibold">{item.name}</div><div className="text-[11px] text-white/55">~{item.prepMin} {t('min')} · {item.shopName}</div></div>
                         <div className="font-bold">{inr(item.price)}</div>
                       </div>
                     ))}
+                    {m.rec.items.map((item) => <div key={`${item.id}-locations`} className="space-y-1 px-1 text-[11px] text-white/70">
+                      {item.locations.length ? item.locations.map((location, index) => <div key={`${item.id}-${location.stationName}-${location.shopName}-${index}`}>
+                        {location.stationName} · {location.lines.map((line) => `${line.name} (${t(`status_${line.status}`)})`).join(' / ')} · {location.verificationStatus === 'verified' && location.locationType === 'inside_station' ? t('loc_inside') : location.verificationStatus === 'verified' && location.locationType === 'station_premises' ? t('loc_premises') : location.verificationStatus === 'verified' ? t('loc_nearby') : t('loc_sample_unknown')}
+                        {location.distanceMetres != null && ` · ${location.distanceMetres} m`}
+                        {` · ${inr(location.price)}`} · <Link className="text-cyan underline" to={location.detailPath}>{t('open_menu')} · {location.shopName}</Link>
+                      </div>) : <div>Location not verified.</div>}
+                    </div>)}
                     <div className="flex justify-between px-1 text-sm font-extrabold"><span>{t('total_lbl')}</span><span>{inr(m.rec.total)}</span></div>
                   </div>
                   <ul className="list-disc space-y-0.5 pl-4 text-xs text-white/75">

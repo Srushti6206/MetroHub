@@ -21,7 +21,10 @@ def parse_query(text, budget_paise=None, minutes=None, dietary=None):
     dietary = [d.lower() for d in (dietary or []) if isinstance(d, str)]
     veg = bool(re.search(r"\bveg\b|vegetarian|शाकाहारी|jain", s)) and not re.search(r"non[- ]?veg", s)
     veg = veg or "vegetarian" in dietary or "veg" in dietary
-    if re.search(r"chai|coffee|चाय|चहा", s):
+    product_keyword = "coffee" if re.search(r"\bcoffee\b", s) else None
+    if product_keyword:
+        intent = "coffee"
+    elif re.search(r"chai|चाय|चहा", s):
         intent = "chai_bite"
     elif re.search(r"meal|lunch|thali|भोजन|जेवण", s):
         intent = "meal"
@@ -31,10 +34,12 @@ def parse_query(text, budget_paise=None, minutes=None, dietary=None):
         intent = "general"
     asks_train = bool(re.search(r"before (my )?(train|metro)|\btrain\b", s))
     return {"budget_paise": budget_paise, "minutes": minutes, "explicit_minutes": explicit_minutes,
-            "veg": veg, "intent": intent, "asks_train": asks_train}
+            "veg": veg, "intent": intent, "product_keyword": product_keyword, "asks_train": asks_train}
 
 
 def _slots(intent):
+    if intent == "coffee":
+        return [(CAT_CHAI, False, True)]
     if intent == "chai_bite":
         return [(CAT_CHAI, False, True), (CAT_BITES, False, False)]
     if intent == "meal":
@@ -45,9 +50,20 @@ def _slots(intent):
     return [(["meals", "bites"], False, False), (CAT_CHAI, True, True), (["bakery", "snacks"], True, False)]
 
 
+def vegetarian_product(p):
+    """True only for a vegetarian flag with no non-vegetarian egg dish wording."""
+    text = f"{p.get('name', '')} {p.get('description', '')}"
+    has_egg = re.compile(r"\b(?:eggs?|omelette|omelet|bhurji)\b", re.IGNORECASE)
+    egg_free = re.compile(r"\b(?:eggless|egg[- ]free|no eggs?)\b", re.IGNORECASE)
+    return bool(p.get("is_vegetarian")) and not (has_egg.search(text) and not egg_free.search(text))
+
+
 def eligible_products(db, station_id, q, default_budget=15000, default_minutes=20):
     """Every available product at this station within budget / prep time / diet. Grouped list of docs."""
-    shops = list(db.shops.find({"station_ids": station_id, "is_active": True}))
+    station = db.stations.find_one({"_id": station_id, "is_active": True})
+    if not station or "operational" not in station.get("status_by_line", {}).values():
+        return [], {}
+    shops = list(db.shops.find({"$or": [{"station_ids": station_id}, {"station_id": station_id}], "is_active": True}))
     if not shops:
         return [], {}
     budget = q["budget_paise"] if q["budget_paise"] is not None else default_budget
@@ -57,13 +73,12 @@ def eligible_products(db, station_id, q, default_budget=15000, default_minutes=2
     if q["veg"]:
         flt["is_vegetarian"] = True
     products = list(db.products.find(flt))
+    if q.get("product_keyword"):
+        term = q["product_keyword"].casefold()
+        products = [p for p in products if term in f"{p.get('name', '')} {p.get('description', '')}".casefold()]
     if q["veg"]:
         # A stale or manually edited diet flag must not admit egg dishes into a vegetarian recommendation.
-        # Keep explicitly eggless/free items eligible.
-        has_egg = re.compile(r"\b(?:eggs?|omelette|omelet|bhurji)\b", re.IGNORECASE)
-        egg_free = re.compile(r"\b(?:eggless|egg[- ]free|no eggs?)\b", re.IGNORECASE)
-        products = [p for p in products if not (has_egg.search(f"{p.get('name', '')} {p.get('description', '')}")
-                                                   and not egg_free.search(f"{p.get('name', '')} {p.get('description', '')}"))]
+        products = [p for p in products if vegetarian_product(p)]
     return products, {s["_id"]: s for s in shops}
 
 

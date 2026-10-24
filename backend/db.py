@@ -34,6 +34,9 @@ def ping(db) -> tuple[bool, str]:
 
 def ensure_indexes(db):
     db.stations.create_index([("is_active", ASCENDING)])
+    db.stations.create_index([("seed_key", ASCENDING)], unique=True, sparse=True)
+    db.stations.create_index([("lines.code", ASCENDING)])
+    db.stations.create_index([("status", ASCENDING)])
     db.shops.create_index([("station_ids", ASCENDING), ("is_active", ASCENDING)])
     db.shops.create_index([("category", ASCENDING)])
     db.products.create_index([("shop_id", ASCENDING), ("is_available", ASCENDING)])

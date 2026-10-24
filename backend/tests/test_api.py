@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import mongomock
 import pytest
@@ -40,6 +42,37 @@ def test_seed_idempotent_and_non_destructive(db):
     assert db.products.find_one({"seed_key": "vada-junction-vp"})["price_paise"] == 2500  # edit survived
 
 
+def test_curated_import_requires_source_and_uses_canonical_station(db, monkeypatch):
+    import seed as seed_module
+    entry = {"id": "test-coffee", "name": "Verified Test Cafe", "category": "chai", "description": "Test fixture only",
+             "station_ids": ["vanaz"], "location_type": "inside_station", "source_url": "https://example.test/cafe",
+             "verification_status": "verified", "last_verified_at": "2026-10-24",
+             "products": [{"id": "test-coffee-item", "name": "Coffee", "price_paise": 1000, "is_vegetarian": True}]}
+    with TemporaryDirectory(dir=Path(__file__).resolve().parents[1]) as temp_dir:
+        outlets = Path(temp_dir) / "station_outlets.json"
+        outlets.write_text(json.dumps([entry]), encoding="utf-8")
+        monkeypatch.setattr(seed_module, "STATION_OUTLETS", outlets)
+        seed_module.seed(db)
+        shop = db.shops.find_one({"seed_key": "test-coffee"})
+        vanaz = db.stations.find_one({"seed_key": "vanaz"})
+        assert shop["station_ids"] == [vanaz["_id"]] and shop["verification_status"] == "verified"
+        product = db.products.find_one({"seed_key": "test-coffee-item"})
+        assert product["price_paise"] == 1000
+        entry["name"] = "Updated Test Cafe"
+        entry["source_url"] = "https://example.test/updated"
+        outlets.write_text(json.dumps([entry]), encoding="utf-8")
+        seed_module.seed(db)
+        assert db.shops.find_one({"_id": shop["_id"]})["name"] == "Updated Test Cafe"
+        outlets.write_text("[]", encoding="utf-8")
+        seed_module.seed(db)
+        assert db.shops.find_one({"_id": shop["_id"]})["is_active"] is False
+        assert db.products.find_one({"_id": product["_id"]})["is_available"] is False
+        entry["verification_status"] = "unverified"
+        outlets.write_text(json.dumps([entry]), encoding="utf-8")
+        with pytest.raises(ValueError, match="requires a verified source URL"):
+            seed_module.seed(db)
+
+
 def test_seed_prices_are_paise_and_ids_stable(client):
     p = client.get(f"/api/products/{pid('vada-junction-vp')}").json
     assert p["price_paise"] == 2000 and p["id"] == pid("vada-junction-vp")
@@ -49,10 +82,47 @@ def test_seed_prices_are_paise_and_ids_stable(client):
 def test_stations_and_shops(client):
     st = client.get("/api/stations").json
     dc = next(s for s in st if s["id"] == STATION)
-    assert dc["display_name"] == "District Court (Civil Court)" and [l["code"] for l in dc["lines"]] == ["purple", "aqua"]
+    assert dc["display_name"] == "Civil Court" and [l["code"] for l in dc["lines"]] == ["purple", "aqua", "line3"]
+    assert dc["is_interchange"] is True and dc["status_by_line"]["line3"] == "requires_verification"
     shops = client.get(f"/api/shops?station_id={STATION}").json
-    assert len(shops) == 7 and all(s["shop_type"] == "demo" for s in shops)
+    assert len(shops) == 7 and all(s["shop_type"] == "demo" and s["verification_status"] == "sample" for s in shops)
     assert client.get(f"/api/shops/{sid('chai-tapri')}").json["name"] == "Tapri Express"
+
+
+def test_canonical_station_ids_and_line_status_filters(client):
+    stations = client.get("/api/stations").json
+    ids = [station["id"] for station in stations]
+    assert len(ids) == len(set(ids))
+    dc = next(station for station in stations if station["id"] == STATION)
+    assert sum(s["display_name"] == "Civil Court" for s in stations) == 1
+    assert client.get("/api/stations?line=line3&status=requires_verification").json
+    assert all("line3" in [line["code"] for line in s["lines"]] and s["status_by_line"]["line3"] == "requires_verification"
+               for s in client.get("/api/stations?line=line3&status=requires_verification").json)
+    assert any(s["seed_key"] == "maan" for s in client.get("/api/stations?line=line3&q=maan").json)
+    assert client.get("/api/stations?line=purple&status=bad").status_code == 400
+
+
+def test_station_detail_and_shop_relationships(client, db):
+    detail = client.get(f"/api/stations/{STATION}").json
+    assert len(detail["shops"]) == 7
+    assert all(STATION in shop["station_ids"] for shop in client.get(f"/api/stations/{STATION}/shops").json)
+    vanaz = next(s for s in client.get("/api/stations").json if s["seed_key"] == "vanaz")
+    assert client.get(f"/api/stations/{vanaz['id']}/shops").json == []
+    assert client.get(f"/api/stations/{vanaz['id']}").status_code == 200
+    assert client.get(f"/api/stations/{'f' * 24}/shops").status_code == 404
+    assert len(client.get("/api/shops?q=Filter%20Coffee").json) == 1
+    legacy = db.shops.find_one({"seed_key": "chai-tapri"})
+    db.shops.update_one({"_id": legacy["_id"]}, {"$unset": {"station_ids": ""}, "$set": {"station_id": legacy["station_ids"][0]}})
+    assert any(shop["id"] == str(legacy["_id"]) for shop in client.get(f"/api/stations/{STATION}/shops").json)
+    assert client.get(f"/api/products?station_id={STATION}").json
+
+
+def test_orders_are_rejected_at_stations_without_verified_operations(client):
+    maan = next(s for s in client.get("/api/stations").json if s["seed_key"] == "maan")
+    body = order_body([{"product_id": pid("vada-junction-vp"), "quantity": 1}])
+    body["station_id"] = maan["id"]
+    response = client.post("/api/orders", json=body)
+    assert response.status_code == 409 and response.json["error"]["code"] == "station_not_operational"
 
 
 def test_filters(client):

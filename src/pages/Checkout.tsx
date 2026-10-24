@@ -14,6 +14,7 @@ export default function Checkout() {
   const { t, groups, stationId, stations, placeOrders, toast } = useStore();
   const nav = useNavigate();
   const station = stations.find((s) => s.id === stationId)!;
+  const stationOperational = !!station && Object.values(station.statusByLine).includes('operational');
   const now = nowMin();
   const maxPrep = Math.max(0, ...groups.map((g) => g.maxPrep));
   const arrivalOpts = useMemo(() => slots(roundUp5(now + 5), 36), [now]);
@@ -57,6 +58,7 @@ export default function Checkout() {
 
   const submit = async () => {
     if (submitting) return;
+    if (!stationOperational) { setError(t('order_station_unverified')); return; }
     if (groups.some((g) => g.hasUnavailable)) { setError(t('unavail_note')); return; }
     if (effPickup < arrival || effPickup < roundUp5(now + maxPrep) ) { setError(t('err_pickup')); return; }
     setSubmitting(true);
@@ -80,6 +82,7 @@ export default function Checkout() {
           <section className="glass space-y-3 p-5">
             <div className="flex items-center gap-2 font-bold"><MapPin size={16} className="text-metro" />{t('pickup_point')}</div>
             <div className="text-sm"><span className="font-semibold">{station.name}</span><br />{t('pickup_point_val')}</div>
+            {!stationOperational && <p className="text-xs font-semibold text-amber-800">{t('order_station_unverified')}</p>}
           </section>
           <section className="glass space-y-4 p-5">
             <div className="flex items-center gap-2 font-bold"><Clock size={16} className="text-metro" />{t('arrival')} & {t('pickup_time')}</div>
@@ -114,7 +117,7 @@ export default function Checkout() {
           ))}
           <div className="flex justify-between border-t border-ink/10 pt-3 text-lg font-extrabold"><span>{t('grand_total')}</span><span>{inr(total)}</span></div>
           {error && <p className="flex items-start gap-1.5 rounded-xl bg-red-50 p-2 text-xs font-semibold text-red-700"><AlertTriangle size={14} className="shrink-0" />{error}</p>}
-          <button className="btn btn-primary w-full" onClick={() => void submit()} disabled={submitting}>{submitting ? 'Submitting…' : t('place_order')}</button>
+          <button className="btn btn-primary w-full" onClick={() => void submit()} disabled={submitting || !stationOperational}>{submitting ? 'Submitting…' : t('place_order')}</button>
         </aside>
       </div>
     </div>

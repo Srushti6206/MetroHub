@@ -80,10 +80,12 @@ def create_order(db, data: dict, parse_dt):
     station = db.stations.find_one({"_id": station_id, "is_active": True})
     if not station:
         raise ApiError(404, "Station not found", "not_found")
+    if "operational" not in station.get("status_by_line", {}).values():
+        raise ApiError(409, "Passenger service at this station is not verified as operational", "station_not_operational")
     shop = db.shops.find_one({"_id": shop_id, "is_active": True})
     if not shop:
         raise ApiError(404, "Shop not found", "not_found")
-    if station_id not in shop.get("station_ids", []):
+    if station_id not in shop.get("station_ids", ([shop["station_id"]] if shop.get("station_id") else [])):
         raise ApiError(422, "This shop is not associated with the selected station", "station_mismatch")
 
     products = {p["_id"]: p for p in db.products.find({"_id": {"$in": list(qty_by)}})}

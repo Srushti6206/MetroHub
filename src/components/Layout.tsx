@@ -184,7 +184,10 @@ export default function Layout() {
           <button className="btn btn-primary" onClick={() => void reloadBackend()}>Retry connection</button>
         </div>}
         {catalogStatus === 'ready' && backendError && <div role="alert" className="my-3 rounded-2xl bg-red-50 p-3 text-sm font-semibold text-red-700">{backendError}</div>}
-        {catalogStatus === 'ready' && stations.length === 0 && <div className="glass my-8 p-6 text-center text-sm">The backend is connected, but its catalog has no stations yet. Seed the MongoDB catalog, then retry.</div>}
+        {catalogStatus === 'ready' && stations.length === 0 && <div className="glass my-8 space-y-3 p-6 text-center">
+          <p className="text-sm">The backend is connected, but its catalog has no stations yet. Seed the MongoDB catalog, then retry.</p>
+          <button className="btn btn-primary" onClick={() => void reloadBackend()}>Retry connection</button>
+        </div>}
         {catalogStatus === 'ready' && stations.length > 0 && <Outlet />}
       </main>
       <Footer />

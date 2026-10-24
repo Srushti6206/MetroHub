@@ -31,7 +31,7 @@ export function ShopsBrowser({ withViews = false }: { withViews?: boolean }) {
 
   const { list, prods } = useMemo(() => {
     const ql = q.trim().toLowerCase();
-    const inStation = shops.filter((s) => s.stationId === stationId);
+    const inStation = shops.filter((s) => (s.stationIds ?? [s.stationId]).includes(stationId));
     const matchProd = (p: typeof products[number]) =>
       p.available && (!veg || p.veg) && (!group || GROUPS[group].includes(p.category)) &&
       (!ql || p.name.toLowerCase().includes(ql) || p.desc.toLowerCase().includes(ql));
@@ -106,15 +106,11 @@ export function ShopsBrowser({ withViews = false }: { withViews?: boolean }) {
         </div>
       ) : (
         <>
-          {withViews && (['concourse', 'nearby'] as const).map((z) => {
-            const zs = list.filter((s) => s.zone === z);
+          {withViews && (['inside_station', 'station_premises', 'nearby_outside', 'demo_unverified'] as const).map((location) => {
+            const zs = list.filter((s) => (s.locationType ?? 'demo_unverified') === location);
             if (!zs.length) return null;
-            return (
-              <section key={z} className="space-y-3">
-                <h3 className="text-sm font-bold uppercase tracking-wide text-ink/55">{t('zone_' + z)}</h3>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{zs.map((s) => <ShopCard key={s.id} shop={s} />)}</div>
-              </section>
-            );
+            const label = location === 'inside_station' ? t('loc_inside') : location === 'station_premises' ? t('loc_premises') : location === 'nearby_outside' ? t('loc_nearby') : t('demo_outlets_group');
+            return <section key={location} className="space-y-3"><h3 className="text-sm font-bold uppercase tracking-wide text-ink/55">{label}</h3><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{zs.map((s) => <ShopCard key={s.id} shop={s} />)}</div></section>;
           })}
           {!withViews && <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{list.map((s) => <ShopCard key={s.id} shop={s} />)}</div>}
         </>

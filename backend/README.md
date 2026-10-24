@@ -57,10 +57,8 @@ Variables: `MONGO_URI`, `MONGO_DB_NAME`, `CORS_ORIGINS` (frontend origin only), 
 ```powershell
 python seed.py
 ```
-Inserts missing demo documents only; **never overwrites** edits and never duplicates. If MongoDB is unreachable it prints
-an actionable error and exits. To wipe and reseed **explicitly**: `python seed.py --reset --yes`.
-The catalog is `backend/data/catalog.json`, generated from `src/data/seed.ts` by `npx tsx scripts/export-seed.ts`
-(run from the project root) if you change the frontend demo data.
+Inserts missing demo documents, refreshes canonical station metadata, and synchronizes only the source-managed curated outlet imports; it preserves customer orders, products' editable fields, and owner catalog data. It does not delete collections. If MongoDB is unreachable it prints an actionable error and exits. To wipe and reseed **explicitly**: `python seed.py --reset --yes`.
+The canonical station/status source is `../data/stations.json` and is shared by the frontend and backend seeder. The fictional demo catalog is `backend/data/catalog.json`; it can be regenerated from `src/data/seed.ts` by `npx tsx scripts/export-seed.ts` (run from the project root) if demo products or shops change. Verified outlet imports use `backend/data/station_outlets.json`; see `backend/data/IMPORTING_OUTLETS.md`.
 
 ## 8. Start Flask
 ```powershell
@@ -107,7 +105,7 @@ manual flow below against real MongoDB.
 
 ## API summary
 - `GET /api/health`
-- `GET /api/stations[/<id>]`, `GET /api/shops[/<id>[/products]]`, `GET /api/products[/<id>]`
+- `GET /api/stations[/<id>]` (filters: `line`, `status`, `q`), `GET /api/stations/<id>/shops`, `GET /api/shops[/<id>[/products]]`, `GET /api/products[/<id>]`
   (filters: station_id, shop_id, category, q, available, vegetarian, max_price_paise), `GET /api/offers`
 - `POST/GET /api/orders`, `GET /api/orders/<id | PMH-number>`, `PATCH /api/orders/<id>/status` (demo "advance")
 - Owner (header `X-Demo-Owner-Shop: <shop id>`): `GET /api/owner/orders|products|offers`,
@@ -126,7 +124,8 @@ products (shop_id, is_available), category, name; offers (shop_id, is_active); s
 - One shop per order; the frontend splits a mixed cart into one order per shop.
 - **Owner mode is demo access** (shop picked via header). It is NOT authentication and not production-secure.
   There are no customer accounts, so every browser sees all demo orders.
-- Station name/line info comes from public secondary sources; punemetrorail.org was not verified.
+- Station names/corridors come from Maha Metro's station/project profile and the PMRDA Line 3 alignment gazette. Current Line 3 passenger-service status is unverified and labeled accordingly; PCMC–Nigdi and Swargate–Katraj are marked under construction per Maha Metro updates. Verify before travel.
+- Existing singular `station_id` shop records remain readable alongside canonical `station_ids`. Records without either relationship are deliberately not assigned to a station.
 - Pickup windows are estimates from preparation time; no live train or shop data.
 - Flat-amount offers are supported by the API, but the existing UI only edits percentage offers.
 - Chat rate limit is in-memory per process (local dev only).

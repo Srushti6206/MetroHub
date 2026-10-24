@@ -1,24 +1,7 @@
 import type { Cat, Offer, Order, Persisted, Product, Shop, Station } from '../types';
-
-/**
- * Station data. Name + line info for District Court was confirmed through public
- * secondary sources (Wikipedia / news) because punemetrorail.org was not reachable
- * when this was built. Re-verify against https://www.punemetrorail.org/ before launch.
- */
-export const STATIONS: Station[] = [
-  { id: 'district-court', name: 'District Court (Civil Court)', lines: ['purple', 'aqua'], interchange: true, verified: true, hasDemoShops: true },
-  { id: 'shivajinagar', name: 'Shivaji Nagar', lines: ['purple'], verified: true, hasDemoShops: false },
-  { id: 'swargate', name: 'Swargate', lines: ['purple'], verified: true, hasDemoShops: false },
-  { id: 'khadki', name: 'Khadki', lines: ['purple'], verified: true, hasDemoShops: false },
-  { id: 'dapodi', name: 'Dapodi', lines: ['purple'], verified: true, hasDemoShops: false },
-  { id: 'deccan', name: 'Deccan Gymkhana', lines: ['aqua'], verified: true, hasDemoShops: false },
-  { id: 'pune-rly', name: 'Pune Railway Station', lines: ['aqua'], verified: true, hasDemoShops: false },
-];
-
-export const LINE_INFO = {
-  purple: { name: 'Purple Line', no: 'Line 1', color: '#6558E8' },
-  aqua: { name: 'Aqua Line', no: 'Line 2', color: '#17b8d4' },
-};
+import { STATIONS } from './stations';
+export { STATIONS } from './stations';
+export { LINE_INFO } from './stations';
 
 const S = 'district-court';
 

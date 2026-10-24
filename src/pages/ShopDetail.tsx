@@ -4,10 +4,11 @@ import { Search, ShoppingBag, Store, ArrowLeft } from 'lucide-react';
 import { useStore } from '../store';
 import { Cover, DemoBadge, Empty, OfferBanner, ProductCard } from '../components/ui';
 import { inr } from '../lib/format';
+import { LINE_INFO } from '../data/stations';
 
 export default function ShopDetail() {
   const { shopId } = useParams();
-  const { t, shops, products, offers, groups } = useStore();
+  const { t, shops, products, offers, groups, stations } = useStore();
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
   const shop = shops.find((s) => s.id === shopId);
@@ -17,6 +18,7 @@ export default function ShopDetail() {
   if (!shop) return <Empty icon={Store} title={t('not_found')} action={<Link className="btn btn-primary" to="/shops">{t('nav_shops')}</Link>} />;
 
   const shopOffers = offers.filter((o) => o.shopId === shop.id && o.active);
+  const linkedStations = stations.filter((station) => (shop.stationIds ?? [shop.stationId]).includes(station.id));
   const filtered = items.filter((p) => (!cat || p.category === cat) && (!q || p.name.toLowerCase().includes(q.toLowerCase()) || p.desc.toLowerCase().includes(q.toLowerCase())));
   const g = groups.find((x) => x.shop.id === shop.id);
 
@@ -29,6 +31,9 @@ export default function ShopDetail() {
           <div className="flex flex-wrap items-center gap-2"><DemoBadge kind={shop.kind} /><span className="chip bg-lav text-metro">{t('c_' + shop.category)}</span><span className="chip bg-white text-ink/70">{t('zone_' + shop.zone)}</span></div>
           <h1 className="text-3xl font-extrabold">{shop.name}</h1>
           <p className="text-ink/70">{shop.desc}</p>
+          <p className="text-xs text-ink/60">{linkedStations.map((station) => `${station.name} · ${station.lines.map((line) => LINE_INFO[line].name).join(' / ')}`).join(' · ')} · {shop.verificationStatus === 'verified' ? t('verified_location') : t('loc_sample_unknown')}</p>
+          {shop.address && <p className="text-xs text-ink/60">{shop.address}{shop.distanceMetres != null ? ` · ${shop.distanceMetres} m` : ''}</p>}
+          {shop.verificationStatus === 'verified' && shop.dataSource?.startsWith('https://') && <a className="text-xs text-metro underline" href={shop.dataSource} target="_blank" rel="noreferrer">{t('open_source')}</a>}
           {shopOffers.length > 0 && <div className="flex flex-wrap gap-2">{shopOffers.map((o) => <OfferBanner key={o.id} offer={o} />)}</div>}
         </div>
       </div>

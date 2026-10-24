@@ -17,6 +17,38 @@ def test_rule_based_veg_snacks_under_100(client):
         assert client.get(f"/api/products/{c['product_id']}").json["price_paise"] == c["price_paise"]  # real, current price
 
 
+def test_chat_cards_include_database_station_and_shop_links(client):
+    item = ask(client, "Where can I get coffee under ₹100?").json["recommendations"][0]
+    assert item["shop_type"] == "demo" and item["verification_status"] == "sample"
+    assert item["detail_path"] == f"/shops/{sid('chai-tapri')}"
+    assert any(location["station_name"] == "Civil Court" and "aqua" in [line["code"] for line in location["lines"]]
+               for location in item["station_locations"])
+
+
+def test_same_product_locations_are_returned_separately(client, db):
+    from bson import ObjectId
+    vanaz = next(s for s in db.stations.find({"seed_key": "vanaz"}))
+    shop_id, product_id = ObjectId(), ObjectId()
+    db.shops.insert_one({"_id": shop_id, "name": "Sample Vanaz Cafe", "station_ids": [vanaz["_id"]],
+                         "is_active": True, "shop_type": "demo", "location_type": "demo_unverified",
+                         "verification_status": "sample", "data_source": "test fixture"})
+    db.products.insert_one({"_id": product_id, "shop_id": shop_id, "name": "Filter Coffee", "category": "chai",
+                            "price_paise": 4500, "is_available": True, "is_vegetarian": True, "preparation_minutes": 4})
+    response = ask(client, "Find coffee under ₹100").json
+    coffee = next(item for item in response["recommendations"] if item["product_name"] == "Filter Coffee")
+    places = {(place["station_name"], place["price_paise"]) for place in coffee["station_locations"]}
+    assert ("Civil Court", 3900) in places and ("Vanaz", 4500) in places
+    assert len([place for place in coffee["station_locations"] if place["station_name"] == "Vanaz"]) == 1
+
+
+def test_chat_does_not_invent_outlets_at_empty_station(client):
+    vanaz = next(s for s in client.get("/api/stations").json if s["seed_key"] == "vanaz")
+    response = client.post("/api/chat", json={"message": "Where can I get coffee?", "station_id": vanaz["id"]})
+    assert response.status_code == 200
+    assert response.json["recommendations"] == []
+    assert "couldn't find" in response.json["reply"]
+
+
 def test_vegetarian_chat_rejects_mislabeled_egg_products(client, db):
     # Exercise the active backend path even if an old/edited Mongo record has the wrong diet flag.
     db.products.update_many({}, {"$set": {"is_available": False}})

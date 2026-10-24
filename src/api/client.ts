@@ -1,5 +1,5 @@
 /** API client: the only module that talks to Flask. Maps API (paise, ISO dates, snake_case) to existing UI types. */
-import type { Offer, Order, Product, Shop, Station, Status } from '../types';
+import type { LineCode, Offer, Order, Product, Shop, Station, StationStatus, Status } from '../types';
 
 export const API_BASE = ((import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://127.0.0.1:5000').replace(/\/$/, '');
 
@@ -26,12 +26,18 @@ async function req<T>(path: string, opts: { method?: string; body?: unknown; own
 
 // ---- mappers ----
 const station = (r: any): Station => ({
-  id: r.id, name: r.display_name, lines: r.lines.map((l: any) => l.code), interchange: r.lines.length > 1,
-  verified: true, hasDemoShops: !!r.has_demo_shops,
+  id: r.id, name: r.display_name, lines: (r.lines ?? []).map((l: any) => l.code as LineCode), interchange: !!r.is_interchange,
+  sequence: r.sequence ?? {}, status: (r.status ?? 'requires_verification') as StationStatus,
+  statusByLine: r.status_by_line ?? {}, aliases: r.aliases ?? [], sourceUrl: r.source_urls?.[0], sourceUrls: r.source_urls ?? [],
+  statusNote: r.status_note, hasDemoShops: !!r.has_demo_shops,
 });
 const shop = (r: any): Shop => ({
-  id: r.id, name: r.name, category: r.category, desc: r.description, stationId: r.station_ids[0], zone: r.zone,
+  id: r.id, name: r.name, category: r.category, desc: r.description,
+  stationIds: r.station_ids ?? (r.station_id ? [r.station_id] : []), stationId: r.station_ids?.[0] ?? r.station_id ?? '', zone: r.zone ?? 'nearby',
   hue: r.ui?.hue ?? ['#6558E8', '#57D9F0'], icon: r.ui?.icon ?? 'store', kind: r.shop_type,
+  locationType: r.location_type, distanceMetres: r.distance_metres, address: r.address,
+  openingHours: r.opening_hours, verificationStatus: r.verification_status, dataSource: r.data_source,
+  lastVerifiedAt: r.last_verified_at,
 });
 const product = (r: any): Product => ({
   id: r.id, seedKey: r.seed_key, shopId: r.shop_id, name: r.name, desc: r.description, price: r.price_paise / 100,
@@ -41,6 +47,12 @@ const offer = (r: any): Offer => ({
   id: r.id, shopId: r.shop_id, title: r.title, percent: r.discount_type === 'percent' ? r.discount_value : 0,
   minSubtotal: (r.min_subtotal_paise ?? 0) / 100, active: !!r.is_live,
 });
+const LEGACY_STATION_SEED_KEYS: Record<string, string> = { deccan: 'deccan-gymkhana', 'pune-rly': 'pune-railway-station' };
+export function mapStationSeedKeys(rows: { seed_key: string; id: string }[]): Record<string, string> {
+  const ids = Object.fromEntries(rows.map((row) => [row.seed_key, row.id]));
+  for (const [legacy, canonical] of Object.entries(LEGACY_STATION_SEED_KEYS)) if (ids[canonical]) ids[legacy] = ids[canonical];
+  return ids;
+}
 const minutesOfDay = (iso: string) => { const d = new Date(iso); return d.getHours() * 60 + d.getMinutes(); };
 export const minutesToIso = (m: number) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setMinutes(m); return d.toISOString(); };
 
@@ -57,6 +69,10 @@ export const mapOrder = (r: any, shops: Shop[]): Order => ({
 export interface ChatRec {
   product_id: string; product_name: string; price_paise: number; shop_id: string; shop_name: string;
   is_available: boolean; is_vegetarian: boolean; preparation_minutes: number; reason: string;
+  station_locations: { station_id: string; station_name: string; lines: { code: string; name: string; line_number: number }[];
+    status_by_line: Record<string, string>; location_type: string; distance_metres?: number | null; verification_status: string;
+    price_paise: number; shop_name: string; shop_id: string; detail_path: string }[];
+  shop_type: string; verification_status: string; data_source: string; detail_path: string;
 }
 export interface ChatResponse {
   reply: string; recommendations: ChatRec[]; total_paise: number; reasons: string[]; earliest_ready_at: string | null;
@@ -74,7 +90,7 @@ export const api = {
     return {
       stations: st.map(station), shops, products: pr.map(product), offers: of.map(offer),
       orders: or.map((o) => mapOrder(o, shops)),
-      stationIdsBySeedKey: Object.fromEntries(st.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
+      stationIdsBySeedKey: mapStationSeedKeys(st),
       shopIdsBySeedKey: Object.fromEntries(sh.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
       productIdsBySeedKey: Object.fromEntries(pr.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
     };

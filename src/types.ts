@@ -2,15 +2,22 @@ export type Lang = 'en' | 'hi' | 'mr';
 export type Cat = 'chai' | 'bites' | 'meals' | 'bakery' | 'snacks' | 'essentials';
 export type ShopCat = 'chai' | 'bites' | 'meals' | 'bakery' | 'store' | 'essentials';
 export type Zone = 'concourse' | 'nearby';
+export type LineCode = 'purple' | 'aqua' | 'line3';
+export type StationStatus = 'operational' | 'under_construction' | 'planned' | 'requires_verification';
 export type Status = 'placed' | 'accepted' | 'preparing' | 'ready' | 'collected' | 'rejected';
 
 export interface Station {
   id: string;
   name: string;
-  lines: ('purple' | 'aqua')[];
+  lines: LineCode[];
   interchange?: boolean;
-  /** true = name/line confirmed against public sources. Official site was unreachable during build. */
-  verified: boolean;
+  sequence: Partial<Record<LineCode, number>>;
+  status: StationStatus;
+  statusByLine: Partial<Record<LineCode, StationStatus>>;
+  aliases?: string[];
+  sourceUrl?: string;
+  sourceUrls?: string[];
+  statusNote?: string;
   hasDemoShops: boolean;
 }
 
@@ -20,11 +27,19 @@ export interface Shop {
   category: ShopCat;
   desc: string;
   stationId: string;
+  stationIds?: string[];
   /** Approximate, demo-only placement. NOT a real location. */
   zone: Zone;
   hue: [string, string];
   icon: string;
   kind: 'demo' | 'verified';
+  locationType?: 'inside_station' | 'station_premises' | 'nearby_outside' | 'demo_unverified';
+  distanceMetres?: number;
+  address?: string;
+  openingHours?: string;
+  verificationStatus?: 'sample' | 'verified' | 'unverified';
+  dataSource?: string;
+  lastVerifiedAt?: string | null;
 }
 
 export interface Product {

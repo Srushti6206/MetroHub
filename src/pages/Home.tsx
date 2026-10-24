@@ -11,7 +11,7 @@ export default function Home() {
   const { t, shops, products, stations, stationId, setMateOpen } = useStore();
   const nav = useNavigate();
   const station = stations.find((s) => s.id === stationId)!;
-  const stationShops = shops.filter((s) => s.stationId === stationId);
+  const stationShops = shops.filter((s) => (s.stationIds ?? [s.stationId]).includes(stationId));
   const now = nowMin();
 
   const cats = [
