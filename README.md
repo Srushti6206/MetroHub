@@ -16,12 +16,23 @@ npm run build     # type-check + build to dist/index.html (single file, opens by
 - Cart (shop-wise groups, offer discounts, availability validation), checkout with arrival/pickup validation against prep time
 - Order tracking with simulated status advance; owner dashboard changes status and the customer view updates
 - Owner: add/edit/delete products, availability, prep time, offers
+<<<<<<< HEAD
 - MetroMate: Flask/MongoDB catalog-grounded recommendations — budget, minutes, vegetarian/egg filter, availability, cart-aware, add-to-cart and station/line/location labels
+=======
+- MetroMate: catalog-grounded recommendations with optional OpenAI-powered replies — budget, diet, availability and add-to-cart
+>>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
 - English / हिंदी / मराठी UI translation (product and shop names stay in English)
 - MongoDB-backed catalog, chat, checkout, order history/status and owner management; cart/preferences/UI state persisted in localStorage (`pune-metro-hub-v1`)
 
+<<<<<<< HEAD
 ## Not implemented (do not claim)
 Live train data, real payments, real inventory, verified station outlets, or a configured live LLM. MetroMate defaults to rule-based recommendations. Shop images are generated gradient covers, not photography.
+=======
+## Backend and AI setup
+The Flask + MongoDB backend and MetroMate's optional OpenAI integration are documented in [backend/README.md](./backend/README.md). OpenAI is optional; without backend OpenAI settings, MetroMate uses its rule-based recommender. Keep API keys on the backend, never in the frontend.
+
+Live train data, real payments, and real inventory are not implemented. Shop images are generated gradient covers, not photography.
+>>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
 
 ## Accuracy note
 Civil Court is one canonical interchange across Purple and Aqua; Line 3 also terminates there. Station source URLs and per-line status are maintained in `data/stations.json`. Verify operational status with the operator before travel; Line 3 is marked as requiring verification.

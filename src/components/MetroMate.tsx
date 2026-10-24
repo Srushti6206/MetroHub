@@ -13,10 +13,10 @@ interface ChatItem {
   detailPath: string; verificationStatus: string;
 }
 interface ChatRecommendation { ok: boolean; items: ChatItem[]; total: number; reasons: string[]; pickupFrom?: number; pickupTo?: number }
-interface Msg { from: 'me' | 'ai'; text: string; rec?: ChatRecommendation }
+interface Msg { from: 'me' | 'ai'; text: string; recs?: ChatRecommendation[] }
 
 export function MetroMate() {
-  const { mateOpen, setMateOpen, t, stationId, cart, prefs, addMany, toast, lang, setPrefs, catalogStatus } = useStore();
+  const { mateOpen, setMateOpen, t, stationId, cart, prefs, addMany, toast, lang, setPrefs, catalogStatus, chatMode } = useStore();
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -37,6 +37,7 @@ export function MetroMate() {
         dietary_preferences: query.vegOnly ? ['vegetarian'] : [],
         cart_product_ids: cart.map((line) => line.productId), history: prior,
       });
+<<<<<<< HEAD
       const items = response.recommendations.map((item) => ({
         id: item.product_id, name: item.product_name, price: item.price_paise / 100,
         prepMin: item.preparation_minutes, veg: item.is_vegetarian,
@@ -55,8 +56,26 @@ export function MetroMate() {
         ok: items.length > 0, items, total: response.total_paise / 100, reasons: response.reasons,
         pickupFrom, pickupTo: pickupFrom === undefined ? undefined : pickupFrom + 10,
       };
+=======
+      const suggestions = response.suggestions?.length ? response.suggestions : response.recommendations.length ? [{
+        items: response.recommendations, total_paise: response.total_paise,
+        reasons: response.reasons, earliest_ready_at: response.earliest_ready_at, shop_name: '',
+      }] : [];
+      const recs = suggestions.map((suggestion): ChatRecommendation => {
+        const items = suggestion.items.map((item) => ({
+          id: item.product_id, name: item.product_name, price: item.price_paise / 100,
+          prepMin: item.preparation_minutes, veg: item.is_vegetarian,
+        }));
+        const ready = suggestion.earliest_ready_at ? new Date(suggestion.earliest_ready_at) : null;
+        const pickupFrom = ready ? ready.getHours() * 60 + ready.getMinutes() : undefined;
+        return {
+          ok: items.length > 0, items, total: suggestion.total_paise / 100, reasons: suggestion.reasons,
+          pickupFrom, pickupTo: pickupFrom === undefined ? undefined : pickupFrom + 10,
+        };
+      });
+>>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
       const reply = response.fallback_note ? `${response.reply} ${response.fallback_note}` : response.reply;
-      setMsgs((m) => [...m, { from: 'ai', text: reply, rec }]);
+      setMsgs((m) => [...m, { from: 'ai', text: reply, recs }]);
     } catch (e) {
       setMsgs((m) => [...m, { from: 'ai', text: e instanceof Error ? e.message : 'MetroMate could not reach the backend. Please try again.' }]);
     } finally { setSending(false); }
@@ -76,7 +95,7 @@ export function MetroMate() {
           <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-metro to-cyan"><Bot size={20} /></span>
           <div className="flex-1">
             <div className="font-bold">MetroMate AI</div>
-            <div className="flex items-center gap-1 text-[11px] text-cyan"><Info size={11} />{t('mate_demo')}</div>
+            <div className="flex items-center gap-1 text-[11px] text-cyan"><Info size={11} />{t(chatMode === 'llm' ? 'mate_openai' : 'mate_rule_based')}</div>
           </div>
           <button aria-label="Close" onClick={() => setMateOpen(false)} className="btn-dark-ghost grid h-9 w-9 place-items-center rounded-xl"><X size={16} /></button>
         </div>
@@ -98,16 +117,17 @@ export function MetroMate() {
           ) : (
             <div key={i} className="glass-dark !rounded-2xl space-y-3 p-3 text-sm">
               <p>{m.text}</p>
-              {m.rec?.ok && (
-                <>
+              {m.recs?.map((rec, optionIndex) => rec.ok && (
+                <div key={`${rec.items[0]?.id}-${optionIndex}`} className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-3">
                   <div className="space-y-2">
-                    {m.rec.items.map((item) => (
+                    {rec.items.map((item) => (
                       <div key={item.id} className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
                         <VegDot veg={item.veg} />
                         <div className="min-w-0 flex-1"><div className="truncate font-semibold">{item.name}</div><div className="text-[11px] text-white/55">~{item.prepMin} {t('min')} · {item.shopName}</div></div>
                         <div className="font-bold">{inr(item.price)}</div>
                       </div>
                     ))}
+<<<<<<< HEAD
                     {m.rec.items.map((item) => <div key={`${item.id}-locations`} className="space-y-1 px-1 text-[11px] text-white/70">
                       {item.locations.length ? item.locations.map((location, index) => <div key={`${item.id}-${location.stationName}-${location.shopName}-${index}`}>
                         {location.stationName} · {location.lines.map((line) => `${line.name} (${t(`status_${line.status}`)})`).join(' / ')} · {location.verificationStatus === 'verified' && location.locationType === 'inside_station' ? t('loc_inside') : location.verificationStatus === 'verified' && location.locationType === 'station_premises' ? t('loc_premises') : location.verificationStatus === 'verified' ? t('loc_nearby') : t('loc_sample_unknown')}
@@ -116,17 +136,20 @@ export function MetroMate() {
                       </div>) : <div>Location not verified.</div>}
                     </div>)}
                     <div className="flex justify-between px-1 text-sm font-extrabold"><span>{t('total_lbl')}</span><span>{inr(m.rec.total)}</span></div>
+=======
+                    <div className="flex justify-between px-1 text-sm font-extrabold"><span>{t('total_lbl')}</span><span>{inr(rec.total)}</span></div>
+>>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
                   </div>
                   <ul className="list-disc space-y-0.5 pl-4 text-xs text-white/75">
-                    {m.rec.reasons.map((r) => <li key={r}>{r}</li>)}
+                    {rec.reasons.map((reason) => <li key={reason}>{reason}</li>)}
                   </ul>
-                  {m.rec.pickupFrom !== undefined && m.rec.pickupTo !== undefined && <div className="flex items-center gap-1.5 text-xs text-cyan"><Clock size={12} />{t('pickup_window')}: {fmtTime(m.rec.pickupFrom)} – {fmtTime(m.rec.pickupTo)} <span className="text-white/50">(simulated)</span></div>}
+                  {rec.pickupFrom !== undefined && rec.pickupTo !== undefined && <div className="flex items-center gap-1.5 text-xs text-cyan"><Clock size={12} />{t('pickup_window')}: {fmtTime(rec.pickupFrom)} – {fmtTime(rec.pickupTo)} <span className="text-white/50">(simulated)</span></div>}
                   <button
                     className="btn btn-primary w-full"
-                    onClick={() => { addMany(m.rec!.items.map((item) => item.id)); toast(t('add_rec') + ' ✓'); }}
-                  ><ShoppingBag size={15} />{t('add_rec')} · {inr(m.rec.total)}</button>
-                </>
-              )}
+                    onClick={() => { addMany(rec.items.map((item) => item.id)); toast(t('add_rec') + ' ✓'); }}
+                  ><ShoppingBag size={15} />{t('add_rec')} · {inr(rec.total)}</button>
+                </div>
+              ))}
             </div>
           ))}
           {sending && <div className="glass-dark !rounded-2xl p-3 text-sm text-white/75">Checking the live catalog…</div>}

@@ -1,6 +1,7 @@
 """Rule-based, catalog-grounded recommender (works with no AI key). All prices come from MongoDB."""
 import re
 from datetime import timedelta
+from unicodedata import normalize
 
 from util import now_utc
 
@@ -82,6 +83,47 @@ def eligible_products(db, station_id, q, default_budget=15000, default_minutes=2
     return products, {s["_id"]: s for s in shops}
 
 
+def product_suggestions(db, station_id, text, q, limit=3):
+    """Return direct matches for a named catalog product, or None for a broader request."""
+    if re.search(r"\b(?:and|with|combo|plus)\b", text.lower()):
+        return None
+    tokens = re.findall(r"[a-z]+", normalize("NFKD", text.lower()))
+    stop = {
+        "a", "an", "and", "at", "best", "can", "coffee", "find", "for", "give", "have", "i",
+        "in", "is", "me", "need", "of", "order", "please", "recommend", "show", "some", "the",
+        "to", "under", "want", "what", "with", "within", "would", "rs", "inr", "rupees",
+        "veg", "vegetarian", "jain", "snack", "snacks", "food", "drink", "drinks",
+    }
+    aliases = {"cold": "iced", "ice": "iced"}
+    terms = [aliases.get(token, token) for token in tokens if not token.isdigit() and token not in stop]
+    query_words = set(re.findall(r"[a-z]+", text.lower()))
+    if "coffee" in query_words:
+        terms.append("coffee")
+    terms = list(dict.fromkeys(terms))
+    if not terms:
+        return None
+
+    shops = list(db.shops.find({"station_ids": station_id, "is_active": True}, {"_id": 1, "name": 1}))
+    shop_by_id = {shop["_id"]: shop for shop in shops}
+    product_docs = list(db.products.find({"shop_id": {"$in": list(shop_by_id)}})) if shops else []
+    named = []
+    for product in product_docs:
+        name = normalize("NFKD", product.get("name", "").lower())
+        matched = [term for term in terms if re.search(rf"\b{re.escape(term)}\b", name)]
+        if matched:
+            named.append((product, matched))
+    if not named:
+        return None
+
+    best_score = max(len(matched) for _, matched in named)
+    named = [(product, matched) for product, matched in named if len(matched) == best_score]
+    pool, _ = eligible_products(db, station_id, q)
+    eligible_by_id = {p["_id"]: p for p in pool}
+    matches = [(eligible_by_id[p["_id"]], matched) for p, matched in named if p["_id"] in eligible_by_id]
+    matches.sort(key=lambda pair: (pair[0]["price_paise"], pair[0]["preparation_minutes"], pair[0]["name"]))
+    return [(p, shop_by_id[p["shop_id"]]) for p, _ in matches[:limit]]
+
+
 def _build(pool, budget, intent):
     slots, used, out, remaining, failed = _slots(intent), set(), [], budget, False
     for i, (cats, optional, cheapest) in enumerate(slots):
@@ -109,21 +151,22 @@ def recommend(db, station_id, q, cart_shop_ids=()):
                 "message": "How many minutes do you have before your train? I don't have live train data, so tell me and I'll find items that can be ready in time."}
     budget = q["budget_paise"] if q["budget_paise"] is not None else 15000
     pool, shops = eligible_products(db, station_id, q)
-    best = None
+    ranked = []
     for sid, shop in shops.items():
         items = _build([p for p in pool if p["shop_id"] == sid], budget, q["intent"])
         if not items:
             continue
         total = sum(p["price_paise"] for p in items)
         score = len(items) * 10000 + total + (6000 if sid in cart_shop_ids else 0) - max(p["preparation_minutes"] for p in items)
-        if not best or score > best[0]:
-            best = (score, shop, items)
+        ranked.append((score, shop, items))
     minutes = q["minutes"] if q["minutes"] is not None else 20
-    if not best:
+    if not ranked:
         return {"ok": False, "items": [], "total_paise": 0, "reasons": [], "follow_up": False,
+                "alternatives": [],
                 "message": f"I couldn't find available items within ₹{budget // 100} and {minutes} min"
                            f"{' (vegetarian)' if q['veg'] else ''} at this station. Try a higher budget or a little more time."}
-    _, shop, items = best
+    ranked.sort(key=lambda candidate: candidate[0], reverse=True)
+    _, shop, items = ranked[0]
     total = sum(p["price_paise"] for p in items)
     max_prep = max(p["preparation_minutes"] for p in items)
     reasons = [f"Total ₹{total // 100} is within your ₹{budget // 100} budget"
@@ -133,6 +176,22 @@ def recommend(db, station_id, q, cart_shop_ids=()):
                "Only items currently marked available in the catalog were considered (checked at checkout, not reserved)."]
     if shop["_id"] in cart_shop_ids:
         reasons.append("Same shop as items already in your cart, so you collect in one stop.")
+    alternatives = []
+    for _, alternative_shop, alternative_items in ranked[:3]:
+        alternative_total = sum(p["price_paise"] for p in alternative_items)
+        alternative_prep = max(p["preparation_minutes"] for p in alternative_items)
+        alternatives.append({
+            "shop": alternative_shop,
+            "items": alternative_items,
+            "total_paise": alternative_total,
+            "reasons": [
+                f"Total ₹{alternative_total // 100} is within your ₹{budget // 100} budget.",
+                f"Longest preparation is {alternative_prep} min, within your {minutes}-minute window.",
+                "Only items currently marked available in the catalog were considered.",
+            ],
+            "earliest_ready_at": now_utc() + timedelta(minutes=alternative_prep),
+        })
     return {"ok": True, "shop": shop, "items": items, "total_paise": total, "reasons": reasons,
             "earliest_ready_at": now_utc() + timedelta(minutes=max_prep), "follow_up": False,
-            "message": f"Here's a {'vegetarian ' if q['veg'] else ''}pick from {shop['name']} (demo shop):"}
+            "alternatives": alternatives,
+            "message": f"Here are a few {'vegetarian ' if q['veg'] else ''}options from the demo catalog:"}
