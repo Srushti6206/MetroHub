@@ -1,43 +1,72 @@
-# Pune Metro Hub — hackathon prototype
+# Pune Metro Hub
 
-Independent demo. **Not** an official Pune Metro / Maha Metro app. All shops, menus, prices, offers, orders and pickup windows are fictional demo data. Station names and corridors use operator/authority references; uncertain statuses are labeled.
+A hackathon prototype for Pune Metro station discovery, nearby shop browsing, sample ordering, and MetroMate recommendations. This is an independent demo, **not** an official Pune Metro or Maha Metro app.
 
-## Run
+## Run locally (Windows)
+
+Requirements: Node.js, Python, and MongoDB Community Server. MongoDB Compass is only a database viewer; it does not run the database server.
+
+1. Start MongoDB (if installed as a Windows service):
+
+   ```powershell
+   Start-Service MongoDB
+   Test-NetConnection 127.0.0.1 -Port 27017
+   ```
+
+2. In a PowerShell window, install backend dependencies, seed safely, and start Flask:
+
+   ```powershell
+   cd .\backend
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
+   python seed.py
+   python app.py
+   ```
+
+   `python seed.py` is repeatable and does not reset the database. Do not use `--reset` unless you intentionally want to erase app collections.
+
+3. In a second window, install frontend dependencies and start Vite:
+
+   ```powershell
+   npm install
+   $env:VITE_API_BASE_URL = 'http://127.0.0.1:5000'
+   npm run dev
+   ```
+
+   Open the local URL printed by Vite. Check Flask and MongoDB with `http://127.0.0.1:5000/api/health`; `database.connected` should be `true`.
+
+For detailed MongoDB setup, environment variables, API routes, and tests, see [backend/README.md](backend/README.md).
+
+## What the demo includes
+
+- Station discovery across Purple, Aqua, and Line 3, with search, line/status filters, and interchange handling.
+- Sample shop and product browsing, cart, checkout, order history, and demo owner controls.
+- Server-side checkout validation of product availability and current prices.
+- MetroMate recommendations grounded in the backend catalog, with budget, time, and vegetarian filtering.
+- English, Hindi, and Marathi interface text.
+
+## Data and limitations
+
+- Shops, menus, prices, offers, and seeded orders are fictional sample data. No verified outlet records are currently imported.
+- Station names and statuses are sourced from operator/authority references in `data/stations.json`. Verify current service with the operator before travel. Line 3 is marked as requiring status verification.
+- MetroMate uses rule-based recommendations by default. An optional LLM provider can be configured on the Flask backend; keep API keys out of frontend code.
+- Train times, shop hours, inventory reservations, and real payments are not provided. Owner controls are demo-only and are not authenticated.
+
+## Checks
+
+```powershell
+npm test
+npm run build
+cd .\backend
+python -m pytest -q
 ```
-npm install
-npm run dev       # development
-npm run build     # type-check + build to dist/index.html (single file, opens by double-click)
-```
 
-## What works
-- Routes: `/`, `/stations`, `/shops`, `/shops/:id`, `/cart`, `/checkout`, `/orders`, `/orders/:id`, `/owner`, `/owner/products`, `/owner/orders` (hash routing)
-- Canonical Purple, Aqua, and Line 3 station discovery; Line 3 and extensions are not presented as usable unless status is verified
-- Fictional demo shops/products/offers at the existing sample station, plus seeded orders in different statuses
-- Cart (shop-wise groups, offer discounts, availability validation), checkout with arrival/pickup validation against prep time
-- Order tracking with simulated status advance; owner dashboard changes status and the customer view updates
-- Owner: add/edit/delete products, availability, prep time, offers
-<<<<<<< HEAD
-- MetroMate: Flask/MongoDB catalog-grounded recommendations — budget, minutes, vegetarian/egg filter, availability, cart-aware, add-to-cart and station/line/location labels
-=======
-- MetroMate: catalog-grounded recommendations with optional OpenAI-powered replies — budget, diet, availability and add-to-cart
->>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
-- English / हिंदी / मराठी UI translation (product and shop names stay in English)
-- MongoDB-backed catalog, chat, checkout, order history/status and owner management; cart/preferences/UI state persisted in localStorage (`pune-metro-hub-v1`)
+Tests use an in-memory MongoDB mock; run the app against local MongoDB for a live integration check.
 
-<<<<<<< HEAD
-## Not implemented (do not claim)
-Live train data, real payments, real inventory, verified station outlets, or a configured live LLM. MetroMate defaults to rule-based recommendations. Shop images are generated gradient covers, not photography.
-=======
-## Backend and AI setup
-The Flask + MongoDB backend and MetroMate's optional OpenAI integration are documented in [backend/README.md](./backend/README.md). OpenAI is optional; without backend OpenAI settings, MetroMate uses its rule-based recommender. Keep API keys on the backend, never in the frontend.
+## Project map
 
-Live train data, real payments, and real inventory are not implemented. Shop images are generated gradient covers, not photography.
->>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
-
-## Accuracy note
-Civil Court is one canonical interchange across Purple and Aqua; Line 3 also terminates there. Station source URLs and per-line status are maintained in `data/stations.json`. Verify operational status with the operator before travel; Line 3 is marked as requiring verification.
-
-## Structure
-`data/stations.json` (canonical station/status dataset) · `src/data/seed.ts` (demo catalog) · `src/store.tsx` (state + persistence) · `src/api/client.ts` · `backend/` (Flask + MongoDB) · `src/pages/*` · `src/components/*`
-
-See [`backend/README.md`](backend/README.md) for local MongoDB/Flask setup, tests and API details. `backend/data/IMPORTING_OUTLETS.md` explains how to add source-verified outlets safely.
+- `data/stations.json` — canonical station and route-status data shared with the backend seeder.
+- `src/` — React frontend, API client, recommendation UI, and local cart/preferences state.
+- `backend/` — Flask API, MongoDB access, repeatable seed, and backend tests.
+- `backend/data/IMPORTING_OUTLETS.md` — process for adding source-verified outlets.

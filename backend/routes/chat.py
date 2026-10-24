@@ -31,6 +31,14 @@ def _rate_limit():
 
 
 def _card(db, p, shop, reason, q):
+    shop_doc = db.shops.find_one({"_id": p["shop_id"]}) or (shop if isinstance(shop, dict) else {})
+    shop_name = shop_doc.get("name") or (shop.get("name") if isinstance(shop, dict) else "")
+    shop_type = shop_doc.get("shop_type")
+    if shop_type is None:
+        shop_type = "demo" if shop_doc.get("verification_status") == "sample" or shop_doc.get("location_type") == "demo_unverified" else "verified"
+    verification_status = shop_doc.get("verification_status")
+    if verification_status is None:
+        verification_status = "sample" if shop_type == "demo" else "unverified"
     locations = []
     budget = q["budget_paise"] if q["budget_paise"] is not None else 15000
     minutes = q["minutes"] if q["minutes"] is not None else 20
@@ -56,12 +64,13 @@ def _card(db, p, shop, reason, q):
                               "verification_status": match_shop.get("verification_status", "unverified"),
                               "price_paise": match["price_paise"], "shop_name": match_shop["name"],
                               "shop_id": str(match_shop["_id"]), "detail_path": f"/shops/{match_shop['_id']}"})
+    detail_path = f"/shops/{shop_doc['_id']}" if shop_doc.get("_id") else f"/shops/{p['shop_id']}"
     return {"product_id": str(p["_id"]), "product_name": p["name"], "price_paise": p["price_paise"],
-            "shop_id": str(p["shop_id"]), "shop_name": shop["name"] if shop else "", "is_available": p["is_available"],
+            "shop_id": str(p["shop_id"]), "shop_name": shop_name, "is_available": p["is_available"],
             "is_vegetarian": p["is_vegetarian"], "preparation_minutes": p["preparation_minutes"], "reason": reason,
-            "station_locations": locations, "shop_type": shop.get("shop_type", "demo"),
-            "verification_status": shop.get("verification_status", "unverified"),
-            "data_source": shop.get("data_source", ""), "detail_path": f"/shops/{shop['_id']}"}
+            "station_locations": locations, "shop_type": shop_type,
+            "verification_status": verification_status,
+            "data_source": shop_doc.get("data_source", ""), "detail_path": detail_path}
 
 
 def _history(raw):
@@ -195,21 +204,17 @@ def chat():
         shop = result["shop"]
         why = {str(p["_id"]): result.get("reasons_by_id", {}).get(str(p["_id"]), "Matches your budget, diet and time, and is available now in the demo catalog.")
                for p in result["items"]}
-<<<<<<< HEAD
         cards = [_card(db, p, shop, why[str(p["_id"])], q) for p in result["items"]]
-=======
-        cards = [_card(p, shop, why[str(p["_id"])]) for p in result["items"]]
     alternatives = result.get("alternatives", [])
     if result.get("ok") and not alternatives:
         alternatives = [result]
     suggestions = [{
-        "items": [_card(p, option["shop"], "") for p in option["items"]],
+        "items": [_card(db, p, option["shop"], "", q) for p in option["items"]],
         "total_paise": option["total_paise"],
         "reasons": option.get("reasons", []),
         "earliest_ready_at": iso(option.get("earliest_ready_at")),
         "shop_name": option["shop"]["name"],
     } for option in alternatives]
->>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
     return jsonify({
         "reply": result["message"], "recommendations": cards, "total_paise": result["total_paise"],
         "reasons": result.get("reasons", []),

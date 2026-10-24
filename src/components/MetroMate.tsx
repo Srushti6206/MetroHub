@@ -37,43 +37,78 @@ export function MetroMate() {
         dietary_preferences: query.vegOnly ? ['vegetarian'] : [],
         cart_product_ids: cart.map((line) => line.productId), history: prior,
       });
-<<<<<<< HEAD
       const items = response.recommendations.map((item) => ({
         id: item.product_id, name: item.product_name, price: item.price_paise / 100,
         prepMin: item.preparation_minutes, veg: item.is_vegetarian,
         shopId: item.shop_id, shopName: item.shop_name, detailPath: item.detail_path,
         verificationStatus: item.verification_status,
         locations: item.station_locations.map((location) => ({
-          stationName: location.station_name, lines: location.lines.map((line) => ({ name: line.name, status: location.status_by_line[line.code] ?? 'requires_verification' })),
-          locationType: location.location_type, distanceMetres: location.distance_metres,
+          stationName: location.station_name,
+          lines: location.lines.map((line) => ({
+            name: line.name,
+            status: location.status_by_line[line.code] ?? 'requires_verification',
+          })),
+          locationType: location.location_type,
+          distanceMetres: location.distance_metres,
           verificationStatus: location.verification_status,
-          price: location.price_paise / 100, shopName: location.shop_name, detailPath: location.detail_path,
+          price: location.price_paise / 100,
+          shopName: location.shop_name,
+          detailPath: location.detail_path,
         })),
       }));
       const ready = response.earliest_ready_at ? new Date(response.earliest_ready_at) : null;
       const pickupFrom = ready ? ready.getHours() * 60 + ready.getMinutes() : undefined;
       const rec: ChatRecommendation = {
-        ok: items.length > 0, items, total: response.total_paise / 100, reasons: response.reasons,
-        pickupFrom, pickupTo: pickupFrom === undefined ? undefined : pickupFrom + 10,
+        ok: items.length > 0,
+        items,
+        total: response.total_paise / 100,
+        reasons: response.reasons,
+        pickupFrom,
+        pickupTo: pickupFrom === undefined ? undefined : pickupFrom + 10,
       };
-=======
       const suggestions = response.suggestions?.length ? response.suggestions : response.recommendations.length ? [{
-        items: response.recommendations, total_paise: response.total_paise,
-        reasons: response.reasons, earliest_ready_at: response.earliest_ready_at, shop_name: '',
+        items: response.recommendations,
+        total_paise: response.total_paise,
+        reasons: response.reasons,
+        earliest_ready_at: response.earliest_ready_at,
+        shop_name: '',
       }] : [];
       const recs = suggestions.map((suggestion): ChatRecommendation => {
         const items = suggestion.items.map((item) => ({
-          id: item.product_id, name: item.product_name, price: item.price_paise / 100,
-          prepMin: item.preparation_minutes, veg: item.is_vegetarian,
+          id: item.product_id,
+          name: item.product_name,
+          price: item.price_paise / 100,
+          prepMin: item.preparation_minutes,
+          veg: item.is_vegetarian,
+          shopId: item.shop_id,
+          shopName: item.shop_name,
+          detailPath: item.detail_path,
+          verificationStatus: item.verification_status,
+          locations: item.station_locations.map((location) => ({
+            stationName: location.station_name,
+            lines: location.lines.map((line) => ({
+              name: line.name,
+              status: location.status_by_line[line.code] ?? 'requires_verification',
+            })),
+            locationType: location.location_type,
+            distanceMetres: location.distance_metres,
+            verificationStatus: location.verification_status,
+            price: location.price_paise / 100,
+            shopName: location.shop_name,
+            detailPath: location.detail_path,
+          })),
         }));
         const ready = suggestion.earliest_ready_at ? new Date(suggestion.earliest_ready_at) : null;
         const pickupFrom = ready ? ready.getHours() * 60 + ready.getMinutes() : undefined;
         return {
-          ok: items.length > 0, items, total: suggestion.total_paise / 100, reasons: suggestion.reasons,
-          pickupFrom, pickupTo: pickupFrom === undefined ? undefined : pickupFrom + 10,
+          ok: items.length > 0,
+          items,
+          total: suggestion.total_paise / 100,
+          reasons: suggestion.reasons,
+          pickupFrom,
+          pickupTo: pickupFrom === undefined ? undefined : pickupFrom + 10,
         };
       });
->>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
       const reply = response.fallback_note ? `${response.reply} ${response.fallback_note}` : response.reply;
       setMsgs((m) => [...m, { from: 'ai', text: reply, recs }]);
     } catch (e) {
@@ -127,18 +162,18 @@ export function MetroMate() {
                         <div className="font-bold">{inr(item.price)}</div>
                       </div>
                     ))}
-<<<<<<< HEAD
-                    {m.rec.items.map((item) => <div key={`${item.id}-locations`} className="space-y-1 px-1 text-[11px] text-white/70">
-                      {item.locations.length ? item.locations.map((location, index) => <div key={`${item.id}-${location.stationName}-${location.shopName}-${index}`}>
-                        {location.stationName} · {location.lines.map((line) => `${line.name} (${t(`status_${line.status}`)})`).join(' / ')} · {location.verificationStatus === 'verified' && location.locationType === 'inside_station' ? t('loc_inside') : location.verificationStatus === 'verified' && location.locationType === 'station_premises' ? t('loc_premises') : location.verificationStatus === 'verified' ? t('loc_nearby') : t('loc_sample_unknown')}
-                        {location.distanceMetres != null && ` · ${location.distanceMetres} m`}
-                        {` · ${inr(location.price)}`} · <Link className="text-cyan underline" to={location.detailPath}>{t('open_menu')} · {location.shopName}</Link>
-                      </div>) : <div>Location not verified.</div>}
-                    </div>)}
-                    <div className="flex justify-between px-1 text-sm font-extrabold"><span>{t('total_lbl')}</span><span>{inr(m.rec.total)}</span></div>
-=======
+                    {rec.items.map((item) => (
+                      <div key={`${item.id}-locations`} className="space-y-1 px-1 text-[11px] text-white/70">
+                        {item.locations.length ? item.locations.map((location, index) => (
+                          <div key={`${item.id}-${location.stationName}-${location.shopName}-${index}`}>
+                            {location.stationName} · {location.lines.map((line) => `${line.name} (${t(`status_${line.status}`)})`).join(' / ')} · {location.verificationStatus === 'verified' && location.locationType === 'inside_station' ? t('loc_inside') : location.verificationStatus === 'verified' && location.locationType === 'station_premises' ? t('loc_premises') : location.verificationStatus === 'verified' ? t('loc_nearby') : t('loc_sample_unknown')}
+                            {location.distanceMetres != null && ` · ${location.distanceMetres} m`}
+                            {` · ${inr(location.price)}`} · <Link className="text-cyan underline" to={location.detailPath}>{t('open_menu')} · {location.shopName}</Link>
+                          </div>
+                        )) : <div>Location not verified.</div>}
+                      </div>
+                    ))}
                     <div className="flex justify-between px-1 text-sm font-extrabold"><span>{t('total_lbl')}</span><span>{inr(rec.total)}</span></div>
->>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
                   </div>
                   <ul className="list-disc space-y-0.5 pl-4 text-xs text-white/75">
                     {rec.reasons.map((reason) => <li key={reason}>{reason}</li>)}

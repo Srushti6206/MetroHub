@@ -91,12 +91,8 @@ export const api = {
     return {
       stations: st.map(station), shops, products: pr.map(product), offers: of.map(offer),
       orders: or.map((o) => mapOrder(o, shops)),
-<<<<<<< HEAD
-      stationIdsBySeedKey: mapStationSeedKeys(st),
-=======
       chatMode: health.chat_mode,
-      stationIdsBySeedKey: Object.fromEntries(st.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
->>>>>>> f9dfacfc5a79c5506c80fb7cf112e72986f01ef2
+      stationIdsBySeedKey: mapStationSeedKeys(st),
       shopIdsBySeedKey: Object.fromEntries(sh.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
       productIdsBySeedKey: Object.fromEntries(pr.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
     };
