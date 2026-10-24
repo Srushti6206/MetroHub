@@ -5,6 +5,7 @@
 !.env.example
 backend/.env
 backend/.env.*
+!backend/.env.example
 
 # Frontend dependencies and builds
 node_modules/
@@ -20,4 +21,3 @@ __pycache__/
 
 # Logs
 *.log
-

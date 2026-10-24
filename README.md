@@ -15,12 +15,14 @@ npm run build     # type-check + build to dist/index.html (single file, opens by
 - Cart (shop-wise groups, offer discounts, availability validation), checkout with arrival/pickup validation against prep time
 - Order tracking with simulated status advance; owner dashboard changes status and the customer view updates
 - Owner: add/edit/delete products, availability, prep time, offers
-- MetroMate AI: rule-based recommender (AI Demo Mode) — budget, minutes, veg filter, availability, cart-aware, add-to-cart
+- MetroMate: catalog-grounded recommendations with optional OpenAI-powered replies — budget, diet, availability and add-to-cart
 - English / हिंदी / मराठी UI translation (product and shop names stay in English)
 - State persisted in localStorage (`pune-metro-hub-v1`)
 
-## Not implemented (do not claim)
-Flask/SQLite backend, live train data, real payments, real inventory, any LLM. Shop images are generated gradient covers, not photography.
+## Backend and AI setup
+The Flask + MongoDB backend and MetroMate's optional OpenAI integration are documented in [backend/README.md](./backend/README.md). OpenAI is optional; without backend OpenAI settings, MetroMate uses its rule-based recommender. Keep API keys on the backend, never in the frontend.
+
+Live train data, real payments, and real inventory are not implemented. Shop images are generated gradient covers, not photography.
 
 ## Accuracy note
 District Court (Civil Court) as a Purple (Line 1) / Aqua (Line 2) interchange was confirmed from public secondary sources. punemetrorail.org could not be fetched during the build — re-verify before presenting it as official.

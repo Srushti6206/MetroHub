@@ -178,9 +178,10 @@ const D: Dict = {
 
   // MetroMate
   mate_title: ['MetroMate AI', 'MetroMate AI', 'MetroMate AI'],
-  mate_demo: ['AI Demo Mode · rule-based, no live model', 'AI डेमो मोड · नियम-आधारित, कोई लाइव मॉडल नहीं', 'AI डेमो मोड · नियम-आधारित, लाइव्ह मॉडेल नाही'],
-  mate_ph: ['e.g. I have ₹120 and 10 minutes, veg please', 'जैसे ₹120 और 10 मिनट, शाकाहारी', 'उदा. ₹120 आणि 10 मिनिटे, शाकाहारी'],
-  mate_hello: ['Hi! Tell me your budget, time and diet, and I will suggest items from the demo catalog.', 'नमस्ते! बजट, समय और खान-पान बताएं, मैं डेमो कैटलॉग से सुझाव दूँगा।', 'नमस्कार! बजेट, वेळ आणि आहार सांगा, मी डेमो कॅटलॉगमधून सुचवेन.'],
+  mate_openai: ['OpenAI · answers only from this demo website', 'OpenAI · जवाब केवल इस डेमो वेबसाइट की जानकारी से', 'OpenAI · उत्तरे फक्त या डेमो वेबसाइटच्या माहितीतून'],
+  mate_rule_based: ['Demo website catalog · no OpenAI key configured', 'डेमो वेबसाइट कैटलॉग · OpenAI key सेट नहीं है', 'डेमो वेबसाइट कॅटलॉग · OpenAI key सेट केलेली नाही'],
+  mate_ph: ['Ask about this site or tell me your budget and time', 'इस साइट के बारे में पूछें या बजट और समय बताएं', 'या साइटबद्दल विचारा किंवा बजेट आणि वेळ सांगा'],
+  mate_hello: ['Hi! Ask about the stations, shops, products or offers on this demo website, or tell me your budget and time for a food suggestion.', 'नमस्ते! इस डेमो वेबसाइट के स्टेशन, दुकानें, उत्पाद या ऑफ़र पूछें, या खाने के सुझाव के लिए बजट और समय बताएं।', 'नमस्कार! या डेमो वेबसाइटवरील स्थानके, दुकाने, उत्पादने किंवा ऑफर्स विचारा; किंवा खाण्याच्या सूचनेसाठी बजेट आणि वेळ सांगा.'],
   add_rec: ['Add recommendation', 'सुझाव कार्ट में जोड़ें', 'सूचना कार्टमध्ये जोडा'],
   pickup_window: ['Suggested pickup window', 'सुझाया गया पिकअप समय', 'सुचवलेली पिकअप वेळ'],
   q1: ['Best snacks under ₹100', '₹100 से कम में बेहतरीन स्नैक्स', '₹100 पेक्षा कमी सर्वोत्तम स्नॅक्स'],

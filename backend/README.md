@@ -49,9 +49,17 @@ pip install -r requirements.txt
 
 ## 6. Configure
 ```powershell
-Copy-Item .env.example .env           # defaults already point at mongodb://127.0.0.1:27017/ and pune_metro_hub
+Copy-Item .env.example .env           # defaults point at local MongoDB and pune_metro_hub
 ```
-Variables: `MONGO_URI`, `MONGO_DB_NAME`, `CORS_ORIGINS` (frontend origin only), `AI_PROVIDER` / `OPENAI_API_KEY` / `OPENAI_MODEL` (optional).
+The `.env.example` file is in `backend`. Edit `backend\.env` to add your OpenAI API key and a model enabled for your account, for example:
+```dotenv
+AI_PROVIDER=openai
+OPENAI_API_KEY=your-key-here
+OPENAI_MODEL=gpt-4o-mini
+```
+Keep this key in `backend\.env` only. Do not put it in the frontend `.env`, source code, screenshots, or commits. The backend `.env` is ignored by Git. The model name is an example; use one available to your OpenAI account.
+
+Other settings include `MONGO_URI`, `MONGO_DB_NAME`, `CORS_ORIGINS` (frontend origin only), and `AI_TIMEOUT_SECONDS`.
 
 ## 7. Seed (safe to repeat)
 ```powershell
@@ -86,17 +94,14 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:5000/api/chat -ContentType 
 ```
 The response has `mode: "rule_based"`.
 
-With a key (your own OpenAI account; no model is assumed, so set one your account supports):
+With a key (your own OpenAI account):
 ```powershell
 # in backend\.env
 AI_PROVIDER=openai
 OPENAI_API_KEY=<your key>
-OPENAI_MODEL=<a model your account can use>
+OPENAI_MODEL=gpt-4o-mini
 ```
-Restart Flask. `/api/health` then shows `chat_mode: "llm"`. The model only sees products the backend already filtered
-(station, budget, diet, availability, prep time). Returned ids are re-validated against that list, totals are recomputed
-from MongoDB, and any failure falls back to rule-based with a `fallback_note`. **The live LLM path has not been run
-against the real provider** (only mocked in tests).
+Replace the example model with one your account supports, then restart Flask. `/api/health` should show `chat_mode: "llm"`, and MetroMate's header will show that OpenAI is configured. The model receives current website facts for the selected station (stations, shops, products, offers, and demo limitations), plus products already filtered by station, budget, diet, availability, and preparation time. It is instructed to answer only from this context and to cite website-fact IDs; unknown source IDs and product IDs are rejected. The backend recomputes prices and totals from MongoDB, and provider/validation failures fall back to rule-based recommendations. This grounding reduces unsupported answers but cannot guarantee that a language model will never make a mistake. **The live provider path has not been run against your account** (tests mock the OpenAI response).
 
 ## Tests (no MongoDB server and no API key needed)
 ```powershell

@@ -1,7 +1,6 @@
 /**
- * MetroMate AI — deterministic, rule-based recommender (AI Demo Mode).
- * No LLM is called. To plug in a real model later, replace `recommend()` with a
- * call that returns the same `Recommendation` shape.
+ * Query parsing and a deterministic catalog recommender used by local tests.
+ * The app's live MetroMate requests go through the Flask API.
  */
 import type { CartLine, Product, Shop } from '../types';
 

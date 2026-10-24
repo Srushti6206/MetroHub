@@ -61,19 +61,21 @@ export interface ChatRec {
 export interface ChatResponse {
   reply: string; recommendations: ChatRec[]; total_paise: number; reasons: string[]; earliest_ready_at: string | null;
   pickup_estimate_note: string; suggested_prompts: string[]; mode: 'llm' | 'rule_based'; fallback_note: string | null;
+  suggestions: { items: ChatRec[]; total_paise: number; reasons: string[]; earliest_ready_at: string | null; shop_name: string }[];
 }
 
 export const api = {
   health: () => req<{ status: string; chat_mode: 'llm' | 'rule_based'; database: { connected: boolean } }>('/api/health'),
   async loadAll() {
-    const [st, sh, pr, of, or] = await Promise.all([
+    const [st, sh, pr, of, or, health] = await Promise.all([
       req<any[]>('/api/stations'), req<any[]>('/api/shops'), req<any[]>('/api/products'),
-      req<any[]>('/api/offers?include_inactive=true'), req<any[]>('/api/orders'),
+      req<any[]>('/api/offers?include_inactive=true'), req<any[]>('/api/orders'), api.health(),
     ]);
     const shops = sh.map(shop);
     return {
       stations: st.map(station), shops, products: pr.map(product), offers: of.map(offer),
       orders: or.map((o) => mapOrder(o, shops)),
+      chatMode: health.chat_mode,
       stationIdsBySeedKey: Object.fromEntries(st.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
       shopIdsBySeedKey: Object.fromEntries(sh.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,
       productIdsBySeedKey: Object.fromEntries(pr.map((r: any) => [r.seed_key, r.id])) as Record<string, string>,

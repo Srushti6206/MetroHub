@@ -38,6 +38,7 @@ interface Toast { id: number; msg: string }
 
 interface Ctx extends Persisted {
   stations: Station[];
+  chatMode: 'llm' | 'rule_based';
   catalogStatus: 'loading' | 'ready' | 'error';
   backendError: string;
   reloadBackend: () => void;
@@ -77,6 +78,7 @@ export const useStore = () => {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [s, setS] = useState<Persisted>(load);
   const [stations, setStations] = useState<Station[]>([]);
+  const [chatMode, setChatMode] = useState<Ctx['chatMode']>('rule_based');
   const [catalogStatus, setCatalogStatus] = useState<Ctx['catalogStatus']>('loading');
   const [backendError, setBackendError] = useState('');
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -88,6 +90,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const data = await api.loadAll();
       setStations(data.stations);
+      setChatMode(data.chatMode);
       setS((st) => {
         const stationId = data.stations.some((x) => x.id === st.stationId)
           ? st.stationId : data.stationIdsBySeedKey[st.stationId] ?? data.stations[0]?.id ?? '';
@@ -149,7 +152,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const value: Ctx = {
     ...s,
-    stations, catalogStatus, backendError, reloadBackend,
+    stations, chatMode, catalogStatus, backendError, reloadBackend,
     t, groups, count: cartCount(s.cart), toasts, mateOpen, setMateOpen, toast,
     setLang: (lang) => setS((st) => ({ ...st, lang })),
     setStation: (stationId) => setS((st) => ({ ...st, stationId })),
