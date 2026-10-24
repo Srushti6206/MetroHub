@@ -1,0 +1,782 @@
+{
+  "stations": [
+    {
+      "id": "district-court",
+      "name": "District Court (Civil Court)",
+      "lines": [
+        "purple",
+        "aqua"
+      ],
+      "interchange": true,
+      "verified": true,
+      "hasDemoShops": true
+    },
+    {
+      "id": "shivajinagar",
+      "name": "Shivaji Nagar",
+      "lines": [
+        "purple"
+      ],
+      "verified": true,
+      "hasDemoShops": false
+    },
+    {
+      "id": "swargate",
+      "name": "Swargate",
+      "lines": [
+        "purple"
+      ],
+      "verified": true,
+      "hasDemoShops": false
+    },
+    {
+      "id": "khadki",
+      "name": "Khadki",
+      "lines": [
+        "purple"
+      ],
+      "verified": true,
+      "hasDemoShops": false
+    },
+    {
+      "id": "dapodi",
+      "name": "Dapodi",
+      "lines": [
+        "purple"
+      ],
+      "verified": true,
+      "hasDemoShops": false
+    },
+    {
+      "id": "deccan",
+      "name": "Deccan Gymkhana",
+      "lines": [
+        "aqua"
+      ],
+      "verified": true,
+      "hasDemoShops": false
+    },
+    {
+      "id": "pune-rly",
+      "name": "Pune Railway Station",
+      "lines": [
+        "aqua"
+      ],
+      "verified": true,
+      "hasDemoShops": false
+    }
+  ],
+  "shops": [
+    {
+      "id": "chai-tapri",
+      "name": "Tapri Express",
+      "category": "chai",
+      "desc": "Kadak chai, filter coffee and quick tea-time bites.",
+      "stationId": "district-court",
+      "zone": "concourse",
+      "hue": [
+        "#8b5cf6",
+        "#f59e0b"
+      ],
+      "icon": "coffee",
+      "kind": "demo"
+    },
+    {
+      "id": "vada-junction",
+      "name": "Vada Pav Junction",
+      "category": "bites",
+      "desc": "Hot vada pav, bhajiya and sandwiches made to order.",
+      "stationId": "district-court",
+      "zone": "concourse",
+      "hue": [
+        "#f97316",
+        "#ef4444"
+      ],
+      "icon": "sandwich",
+      "kind": "demo"
+    },
+    {
+      "id": "misal-ghar",
+      "name": "Kasba Misal Ghar",
+      "category": "meals",
+      "desc": "Spicy Puneri misal pav, thalipeeth and sabudana khichdi.",
+      "stationId": "district-court",
+      "zone": "nearby",
+      "hue": [
+        "#ef4444",
+        "#f59e0b"
+      ],
+      "icon": "utensils",
+      "kind": "demo"
+    },
+    {
+      "id": "tiffin-tales",
+      "name": "Tiffin Tales",
+      "category": "meals",
+      "desc": "Poha, upma and light home-style meals for the morning rush.",
+      "stationId": "district-court",
+      "zone": "nearby",
+      "hue": [
+        "#22c55e",
+        "#06b6d4"
+      ],
+      "icon": "utensils",
+      "kind": "demo"
+    },
+    {
+      "id": "baker-basket",
+      "name": "Baker's Basket",
+      "category": "bakery",
+      "desc": "Fresh buns, khari, cookies and eggless pastries.",
+      "stationId": "district-court",
+      "zone": "concourse",
+      "hue": [
+        "#ec4899",
+        "#f59e0b"
+      ],
+      "icon": "croissant",
+      "kind": "demo"
+    },
+    {
+      "id": "metro-mart",
+      "name": "Metro Mart Express",
+      "category": "store",
+      "desc": "Packaged snacks, juices and grab-and-go convenience items.",
+      "stationId": "district-court",
+      "zone": "concourse",
+      "hue": [
+        "#6558E8",
+        "#57D9F0"
+      ],
+      "icon": "store",
+      "kind": "demo"
+    },
+    {
+      "id": "daily-needs",
+      "name": "Daily Needs Corner",
+      "category": "essentials",
+      "desc": "Water, tissues, chargers and small daily essentials.",
+      "stationId": "district-court",
+      "zone": "nearby",
+      "hue": [
+        "#0ea5e9",
+        "#6558E8"
+      ],
+      "icon": "basket",
+      "kind": "demo"
+    }
+  ],
+  "products": [
+    {
+      "id": "chai-tapri-chai",
+      "shopId": "chai-tapri",
+      "name": "Masala Chai",
+      "desc": "Kadak ginger-cardamom chai in a kulhad.",
+      "price": 15,
+      "category": "chai",
+      "veg": true,
+      "prepMin": 3,
+      "available": true
+    },
+    {
+      "id": "chai-tapri-coffee",
+      "shopId": "chai-tapri",
+      "name": "Filter Coffee",
+      "desc": "Strong South-style filter coffee.",
+      "price": 39,
+      "category": "chai",
+      "veg": true,
+      "prepMin": 4,
+      "available": true
+    },
+    {
+      "id": "chai-tapri-cold",
+      "shopId": "chai-tapri",
+      "name": "Iced Coffee",
+      "desc": "Chilled coffee with a hint of caramel.",
+      "price": 79,
+      "category": "chai",
+      "veg": true,
+      "prepMin": 5,
+      "available": true
+    },
+    {
+      "id": "chai-tapri-bun",
+      "shopId": "chai-tapri",
+      "name": "Bun Maska",
+      "desc": "Soft bun with butter, perfect with chai.",
+      "price": 29,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 2,
+      "available": true
+    },
+    {
+      "id": "chai-tapri-khari",
+      "shopId": "chai-tapri",
+      "name": "Khari Biscuit Pack",
+      "desc": "Flaky khari biscuits, 6 pieces.",
+      "price": 39,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "chai-tapri-omelette",
+      "shopId": "chai-tapri",
+      "name": "Egg Bun Omelette",
+      "desc": "Masala omelette in a toasted bun.",
+      "price": 59,
+      "category": "bites",
+      "veg": false,
+      "prepMin": 8,
+      "available": true
+    },
+    {
+      "id": "chai-tapri-lemon",
+      "shopId": "chai-tapri",
+      "name": "Lemon Tea",
+      "desc": "Light lemon tea, no milk.",
+      "price": 25,
+      "category": "chai",
+      "veg": true,
+      "prepMin": 3,
+      "available": false
+    },
+    {
+      "id": "vada-junction-vp",
+      "shopId": "vada-junction",
+      "name": "Vada Pav",
+      "desc": "Classic batata vada with garlic chutney.",
+      "price": 20,
+      "category": "bites",
+      "veg": true,
+      "prepMin": 4,
+      "available": true
+    },
+    {
+      "id": "vada-junction-dvp",
+      "shopId": "vada-junction",
+      "name": "Cheese Vada Pav",
+      "desc": "Vada pav with a melty cheese slice.",
+      "price": 39,
+      "category": "bites",
+      "veg": true,
+      "prepMin": 6,
+      "available": true
+    },
+    {
+      "id": "vada-junction-bhaji",
+      "shopId": "vada-junction",
+      "name": "Kanda Bhaji Plate",
+      "desc": "Crispy onion fritters with chutney.",
+      "price": 49,
+      "category": "bites",
+      "veg": true,
+      "prepMin": 7,
+      "available": true
+    },
+    {
+      "id": "vada-junction-sand",
+      "shopId": "vada-junction",
+      "name": "Veg Grilled Sandwich",
+      "desc": "Grilled sandwich with veggies and green chutney.",
+      "price": 59,
+      "category": "bites",
+      "veg": true,
+      "prepMin": 8,
+      "available": true
+    },
+    {
+      "id": "vada-junction-cs",
+      "shopId": "vada-junction",
+      "name": "Cheese Corn Sandwich",
+      "desc": "Sweet corn and cheese, grilled.",
+      "price": 89,
+      "category": "bites",
+      "veg": true,
+      "prepMin": 9,
+      "available": true
+    },
+    {
+      "id": "vada-junction-combo",
+      "shopId": "vada-junction",
+      "name": "Vada Pav + Chai Combo",
+      "desc": "2 vada pav and a masala chai.",
+      "price": 59,
+      "category": "bites",
+      "veg": true,
+      "prepMin": 6,
+      "available": true
+    },
+    {
+      "id": "vada-junction-chicken",
+      "shopId": "vada-junction",
+      "name": "Chicken Roll",
+      "desc": "Spiced chicken wrapped in a paratha.",
+      "price": 99,
+      "category": "bites",
+      "veg": false,
+      "prepMin": 12,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-misal",
+      "shopId": "misal-ghar",
+      "name": "Puneri Misal Pav",
+      "desc": "Sprouted moth curry, farsan, 2 pav.",
+      "price": 89,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 8,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-thali",
+      "shopId": "misal-ghar",
+      "name": "Thalipeeth with Curd",
+      "desc": "Multigrain thalipeeth, white butter and curd.",
+      "price": 79,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 10,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-sabu",
+      "shopId": "misal-ghar",
+      "name": "Sabudana Khichdi",
+      "desc": "Peanut-rich khichdi with a squeeze of lemon.",
+      "price": 59,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 7,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-usal",
+      "shopId": "misal-ghar",
+      "name": "Usal Pav",
+      "desc": "Mild usal with 2 pav.",
+      "price": 69,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 6,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-full",
+      "shopId": "misal-ghar",
+      "name": "Full Misal Thali",
+      "desc": "Misal, papad, kanda and solkadhi.",
+      "price": 129,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 12,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-sol",
+      "shopId": "misal-ghar",
+      "name": "Solkadhi",
+      "desc": "Cooling kokum-coconut drink.",
+      "price": 39,
+      "category": "chai",
+      "veg": true,
+      "prepMin": 2,
+      "available": true
+    },
+    {
+      "id": "misal-ghar-puran",
+      "shopId": "misal-ghar",
+      "name": "Puran Poli",
+      "desc": "Sweet puran poli with ghee.",
+      "price": 49,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 6,
+      "available": false
+    },
+    {
+      "id": "tiffin-tales-poha",
+      "shopId": "tiffin-tales",
+      "name": "Kanda Poha",
+      "desc": "Light poha with peanuts and lemon.",
+      "price": 39,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 5,
+      "available": true
+    },
+    {
+      "id": "tiffin-tales-upma",
+      "shopId": "tiffin-tales",
+      "name": "Rava Upma",
+      "desc": "Soft upma with curry leaves.",
+      "price": 39,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 5,
+      "available": true
+    },
+    {
+      "id": "tiffin-tales-idli",
+      "shopId": "tiffin-tales",
+      "name": "Idli Sambar (3 pcs)",
+      "desc": "Steamed idlis with sambar and chutney.",
+      "price": 59,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 8,
+      "available": true
+    },
+    {
+      "id": "tiffin-tales-dosa",
+      "shopId": "tiffin-tales",
+      "name": "Masala Dosa",
+      "desc": "Crisp dosa with potato masala.",
+      "price": 89,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 10,
+      "available": true
+    },
+    {
+      "id": "tiffin-tales-curdrice",
+      "shopId": "tiffin-tales",
+      "name": "Curd Rice Bowl",
+      "desc": "Cooling curd rice with pomegranate.",
+      "price": 69,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 5,
+      "available": true
+    },
+    {
+      "id": "tiffin-tales-thali",
+      "shopId": "tiffin-tales",
+      "name": "Mini Veg Thali",
+      "desc": "Roti, sabzi, dal, rice.",
+      "price": 129,
+      "category": "meals",
+      "veg": true,
+      "prepMin": 14,
+      "available": true
+    },
+    {
+      "id": "tiffin-tales-egg",
+      "shopId": "tiffin-tales",
+      "name": "Egg Bhurji Pav",
+      "desc": "Spicy bhurji with buttered pav.",
+      "price": 79,
+      "category": "meals",
+      "veg": false,
+      "prepMin": 9,
+      "available": true
+    },
+    {
+      "id": "baker-basket-khari",
+      "shopId": "baker-basket",
+      "name": "Butter Khari (6 pcs)",
+      "desc": "Flaky khari baked in butter.",
+      "price": 49,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "baker-basket-cookie",
+      "shopId": "baker-basket",
+      "name": "Choco Chip Cookie",
+      "desc": "Eggless choco chip cookie.",
+      "price": 39,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "baker-basket-pastry",
+      "shopId": "baker-basket",
+      "name": "Pineapple Pastry",
+      "desc": "Eggless pineapple pastry slice.",
+      "price": 59,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 2,
+      "available": true
+    },
+    {
+      "id": "baker-basket-cake",
+      "shopId": "baker-basket",
+      "name": "Brownie Slice",
+      "desc": "Fudgy chocolate brownie.",
+      "price": 89,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 3,
+      "available": true
+    },
+    {
+      "id": "baker-basket-puff",
+      "shopId": "baker-basket",
+      "name": "Veg Puff",
+      "desc": "Flaky puff with spiced vegetable filling.",
+      "price": 29,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 3,
+      "available": true
+    },
+    {
+      "id": "baker-basket-croiss",
+      "shopId": "baker-basket",
+      "name": "Butter Croissant",
+      "desc": "Buttery layered croissant.",
+      "price": 79,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 3,
+      "available": true
+    },
+    {
+      "id": "baker-basket-cake2",
+      "shopId": "baker-basket",
+      "name": "Eggless Cake Jar",
+      "desc": "Chocolate cake layers in a jar.",
+      "price": 129,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 4,
+      "available": true
+    },
+    {
+      "id": "baker-basket-bread",
+      "shopId": "baker-basket",
+      "name": "Milk Bread Loaf",
+      "desc": "Fresh milk bread loaf.",
+      "price": 45,
+      "category": "bakery",
+      "veg": true,
+      "prepMin": 1,
+      "available": false
+    },
+    {
+      "id": "metro-mart-chips",
+      "shopId": "metro-mart",
+      "name": "Masala Chips (50g)",
+      "desc": "Classic masala potato chips.",
+      "price": 20,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-bhujia",
+      "shopId": "metro-mart",
+      "name": "Bhakarwadi Pack",
+      "desc": "Pune-style bhakarwadi, 150g.",
+      "price": 59,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-nuts",
+      "shopId": "metro-mart",
+      "name": "Roasted Peanut Mix",
+      "desc": "Spiced roasted peanuts, 100g.",
+      "price": 39,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-juice",
+      "shopId": "metro-mart",
+      "name": "Mixed Fruit Juice",
+      "desc": "Chilled 200ml fruit juice.",
+      "price": 30,
+      "category": "chai",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-bar",
+      "shopId": "metro-mart",
+      "name": "Protein Bar",
+      "desc": "Nut and oats protein bar.",
+      "price": 99,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-water",
+      "shopId": "metro-mart",
+      "name": "Water Bottle 1L",
+      "desc": "Packaged drinking water.",
+      "price": 20,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-cake",
+      "shopId": "metro-mart",
+      "name": "Dry Fruit Laddoo",
+      "desc": "Single-serve dry fruit laddoo.",
+      "price": 49,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "metro-mart-nood",
+      "shopId": "metro-mart",
+      "name": "Instant Cup Noodles",
+      "desc": "Ready in 3 minutes with hot water.",
+      "price": 59,
+      "category": "snacks",
+      "veg": true,
+      "prepMin": 4,
+      "available": false
+    },
+    {
+      "id": "daily-needs-water",
+      "shopId": "daily-needs",
+      "name": "Water Bottle 500ml",
+      "desc": "Packaged drinking water.",
+      "price": 10,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "daily-needs-tissue",
+      "shopId": "daily-needs",
+      "name": "Tissue Pack",
+      "desc": "Pocket tissues, 10 sheets.",
+      "price": 15,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "daily-needs-sani",
+      "shopId": "daily-needs",
+      "name": "Hand Sanitizer 50ml",
+      "desc": "Travel-size hand sanitizer.",
+      "price": 39,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "daily-needs-cable",
+      "shopId": "daily-needs",
+      "name": "USB-C Charging Cable",
+      "desc": "Basic 1 m charging cable.",
+      "price": 199,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 2,
+      "available": true
+    },
+    {
+      "id": "daily-needs-umb",
+      "shopId": "daily-needs",
+      "name": "Pocket Umbrella",
+      "desc": "Compact folding umbrella.",
+      "price": 199,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 2,
+      "available": true
+    },
+    {
+      "id": "daily-needs-mask",
+      "shopId": "daily-needs",
+      "name": "Face Mask (3 pcs)",
+      "desc": "Disposable masks.",
+      "price": 29,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    },
+    {
+      "id": "daily-needs-pen",
+      "shopId": "daily-needs",
+      "name": "Gel Pen + Notepad",
+      "desc": "Pocket notepad and a gel pen.",
+      "price": 49,
+      "category": "essentials",
+      "veg": true,
+      "prepMin": 1,
+      "available": true
+    }
+  ],
+  "offers": [
+    {
+      "id": "o1",
+      "shopId": "chai-tapri",
+      "title": "10% off on orders above ₹59",
+      "percent": 10,
+      "minSubtotal": 59,
+      "active": true
+    },
+    {
+      "id": "o2",
+      "shopId": "vada-junction",
+      "title": "15% off on orders above ₹99",
+      "percent": 15,
+      "minSubtotal": 99,
+      "active": true
+    },
+    {
+      "id": "o3",
+      "shopId": "misal-ghar",
+      "title": "10% off on orders above ₹129",
+      "percent": 10,
+      "minSubtotal": 129,
+      "active": true
+    },
+    {
+      "id": "o4",
+      "shopId": "baker-basket",
+      "title": "12% off on orders above ₹99",
+      "percent": 12,
+      "minSubtotal": 99,
+      "active": true
+    },
+    {
+      "id": "o5",
+      "shopId": "tiffin-tales",
+      "title": "8% off on orders above ₹99",
+      "percent": 8,
+      "minSubtotal": 99,
+      "active": true
+    },
+    {
+      "id": "o6",
+      "shopId": "metro-mart",
+      "title": "10% off on orders above ₹149",
+      "percent": 10,
+      "minSubtotal": 149,
+      "active": true
+    }
+  ]
+}
